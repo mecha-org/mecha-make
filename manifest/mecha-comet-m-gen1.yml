@@ -1,0 +1,15 @@
+u-boot:
+  url: "https://github.com/chiragp-mecha/u-boot/archive/refs/heads/imx-2023.04.y.tar.gz"
+  sha: ""
+
+imx-atf:
+  url: "https://github.com/nxp-imx/imx-atf/archive/99195a23d3aef485fb8f10939583b1bdef18881c.tar.gz"
+  sha: ""
+
+imx-mkimage:
+  url: "https://github.com/nxp-imx/imx-mkimage.git"
+  sha: ""
+  commit-id: "d489494622585a47b4be88988595b0e4f9598f39"
+
+trusted-firmware:
+  url: "https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.20.bin"
