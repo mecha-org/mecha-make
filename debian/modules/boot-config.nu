@@ -73,23 +73,3 @@ export def boot_script [rootfs_dir: string, package_conf_path: string] {
 
 }
 
-
-def hello [] {
-   print "Hello, World!"
-
-   # Define the file path and the new version value as arguments
-   let script_dir_path = "/home/jack/Desktop/mecha/mecha-make-v1/debian/include/scripts"
-  let boot_script_source = $script_dir_path + "/boot.script"
-  let new_version = "new_value"  # Replace with the actual new value you want to pass
-
-  # Read the file content
-  let content = (open $boot_script_source)
-
-   # Replace the old version with the new version
-  let updated_content = ($content | str replace 'kernel_version' $new_version)
-
-  # Save the updated content back to the file
-  print $updated_content
- }
-
-

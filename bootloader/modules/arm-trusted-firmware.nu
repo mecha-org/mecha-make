@@ -8,7 +8,7 @@ export def build_imx_trusted_firmware [work_dir:string] {
     let imx_atf_dir = ($work_dir + "/imx-atf") | path expand
     mkdir $imx_atf_dir
 
-    let manifest = "../manifest/mecha-comet-m-gen1.yml" | path expand
+    let manifest =  $env.MANIFEST_DIR
     let IMX_ATF_REPO = open $manifest | get imx-atf | get url
 
     log_debug $"Fetching IMX Trusted Firmware source code from ($IMX_ATF_REPO) to ($imx_atf_dir)"

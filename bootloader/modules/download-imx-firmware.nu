@@ -8,7 +8,7 @@ export def download_firmware [work_dir:string] {
     log_info "Downloading and extracting firmware"
 
     # grab manifest file before entering the firmware directory
-    let manifest = "../manifest/mecha-comet-m-gen1.yml" | path expand
+    let manifest =  $env.MANIFEST_DIR
     log_debug $"Fetching firmware URL from ($manifest)"
     let FIRMWARE_URL = open $manifest | get trusted-firmware | get url
 

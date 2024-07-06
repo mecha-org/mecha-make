@@ -1,6 +1,4 @@
 packages:
-  - linux.group
-  - firmware.group
   - system.group
   - network.group
   - build.group
@@ -8,6 +6,7 @@ packages:
   - wayland.group
   - greeter.group
   - audio.group
+  - graphics.group
 package_groups:
   - name: linux
     packages:
@@ -21,6 +20,8 @@ package_groups:
       - sudo
       - bash-completion
       - dosfstools
+      - cpufreq-utils
+      - upower
   - name: network
     packages:
       - bluez
@@ -29,13 +30,17 @@ package_groups:
       - ethtool
       - network-manager
       - net-tools
+      - curl
   - name: build
     packages:
       - python3
+  - name: graphics
+    packages:
+      - mesa-utils
   - name: locale
     packages:
       - systemd-timesyncd
-      - locales-all
+      - locales
       # - systemd-services
   - name: wayland
     packages:

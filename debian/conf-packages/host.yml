@@ -5,3 +5,4 @@ packages:
   - name: qemu-user-static
     url: http://ftp.us.debian.org/debian/pool/main/q/qemu/qemu-user-static_7.2+dfsg-7+deb12u5_amd64.deb
     sha: ""
+  - name: whois

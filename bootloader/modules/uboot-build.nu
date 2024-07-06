@@ -8,7 +8,7 @@ use fetch-source.nu
 
 export def build_uboot [uboot_dir:string] {
 
-    let manifest = "../manifest/mecha-comet-m-gen1.yml" | path expand
+    let manifest =  $env.MANIFEST_DIR
 
     let UBOOT_REPO = open $manifest | get u-boot | get url
 

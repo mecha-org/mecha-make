@@ -14,16 +14,16 @@ use modules/pack-rootfs.nu *
 use modules/os-config.nu *
 
 
-const PACKAGE_CONF_PATH = "./conf/build.yml" 
+const BUILD_CONF_PATH = "./conf/build.yml" 
 
 # Global aliases
 alias SUDO = sudo
 alias CHROOT = sudo chroot
 
-# Global variables
-const TARGET_HOSTNAME = "mecha-comet-m"
-const TARGET_LOCALE = "en-US.UTF-8"
-const TARGET_TIMEZONE = "America/Los_Angeles"
+# read build configuration file
+let TARGET_HOSTNAME = open $BUILD_CONF_PATH | get hostname
+let TARGET_LOCALE = open $BUILD_CONF_PATH | get locale
+let TARGET_TIMEZONE = open $BUILD_CONF_PATH | get locale | get timezone
 
 # Entrypoint
 def main [machine: string, build_dir: string] {
@@ -79,10 +79,10 @@ def main [machine: string, build_dir: string] {
 
   make_root_home_dir
 
-  install_linux_firmware_packages $PACKAGE_CONF_PATH
+  install_linux_firmware_packages $BUILD_CONF_PATH
   install_linux_kernel_packages
   # boot script
-  boot_script $rootfs_dir $PACKAGE_CONF_PATH
+  boot_script $rootfs_dir $BUILD_CONF_PATH
 
 
   install_target_packages
@@ -92,45 +92,40 @@ def main [machine: string, build_dir: string] {
   # set_hostname
   # setup_default_locale_timezone
 
-
-
-
-  # copy_misc
-  copy_misc
   
   # configure_audio
-  configure_audio $rootfs_dir $PACKAGE_CONF_PATH
+  configure_audio $rootfs_dir $BUILD_CONF_PATH
 
   # update_os_release
-  update_os_release $rootfs_dir $PACKAGE_CONF_PATH
+  update_os_release $rootfs_dir $BUILD_CONF_PATH
 
   # configure_udev
-  configure_udev $rootfs_dir $PACKAGE_CONF_PATH
+  configure_udev $rootfs_dir $BUILD_CONF_PATH
 
   # configure_networking
   configure_networking $rootfs_dir
 
   # oem_images
-  oem_images $rootfs_dir $PACKAGE_CONF_PATH
+  oem_images $rootfs_dir $BUILD_CONF_PATH
 
   # enable_easysplash
   # enable_easysplash $rootfs_dir 
   # enable_boot_fw  $rootfs_dir
 
   # configure_bluetooth
-  configure_bluetooth $rootfs_dir $PACKAGE_CONF_PATH
+  configure_bluetooth $rootfs_dir $BUILD_CONF_PATH
 
   # configure_ssh
-  configure_ssh $rootfs_dir $PACKAGE_CONF_PATH
+  configure_ssh $rootfs_dir $BUILD_CONF_PATH
 
   # configure_default_user
-  configure_default_user $rootfs_dir $PACKAGE_CONF_PATH
+  configure_default_user $rootfs_dir $BUILD_CONF_PATH
 
   # configure_greeter
   configure_greeter $rootfs_dir
 
   # configure_sys_files
-  configure_sys_files $rootfs_dir $PACKAGE_CONF_PATH
+  configure_sys_files $rootfs_dir $BUILD_CONF_PATH
 
   # Stage4: Cleanup
   unmount_sys_proc_volumes
@@ -244,17 +239,6 @@ def setup_default_locale_timezone [] {
   #$CHROOTCMD systemctl enable systemd-timesyncd
 }
 
-
-
-def copy_misc [] {
-  log_info "Copying miscellaneous files:"
-
-  let rootfs_dir = $env.ROOTFS_DIR
-  alias CHROOT = sudo chroot $rootfs_dir
-
-  CHROOT dpkg -R --force-all -i /tmp
-  
-}
 
 def ensure_unmount [] {
   log_info "Ensuring all volumes are unmounted"

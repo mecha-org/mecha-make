@@ -12,7 +12,7 @@ const ARCH = "arm64"
 const CROSS_COMPILE = "/usr/bin/aarch64-linux-gnu-"
 
 # Entry point
-def main [build_dir:string] {
+def main [machine: string,build_dir:string] {
     log_info "Starting build script"
 
     # convert build_dir to absolute path
@@ -28,6 +28,8 @@ def main [build_dir:string] {
     create_dir_if_not_exist $deploy_dir
     create_dir_if_not_exist $u_boot_dir
 
+    let manifest_for_machine = ($machine + ".yml")
+    let manifest_dir = "../manifest/" + $manifest_for_machine | path expand
 
     load-env {
         ARCH: $ARCH
@@ -35,6 +37,7 @@ def main [build_dir:string] {
         WORK_DIR: $work_dir
         DEPLOY_DIR: $deploy_dir
         UBOOT_DIR: $u_boot_dir
+        MANIFEST_DIR: $manifest_dir
     }
 
     log_info "Building U-Boot"

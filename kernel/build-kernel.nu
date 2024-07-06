@@ -8,7 +8,7 @@ use modules/utils.nu *
 # Variables
 let arch = "arm64"
 let cross_compile = "/usr/bin/aarch64-linux-gnu-"
-let kernel_repo = "https://github.com/chiragp-mecha/linux-imx.git"
+let kernel_repo = "git@github.com:chiragp-mecha/linux-imx.git"
 let config_file = "arch/arm64/configs/mecha_v8_defconfig"
 let debian_frontend = "noninteractive"
 

@@ -34,4 +34,4 @@ packages-path: ./include/packages/
 scripts-path:  ./include/scripts/
 media-files : ./include/media-files
 firmware-files : ./include/packages/firmware
-
+include-path: ./include

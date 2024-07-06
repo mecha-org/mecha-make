@@ -13,15 +13,15 @@ export def build_imx_mkimage [work_dir:string] {
 
     mkdir $mkimage_dir
 
-    let manifest = "../manifest/mecha-comet-m-gen1.yml" | path expand
-    let IMX_MKIMAGE_REPO = open $manifest | get imx-mkimage | get url
-    let IMX_MKIMAGE_COMMIT = open $manifest | get imx-mkimage | get commit-id
+    let manifest =  $env.MANIFEST_DIR
+    let imx_mkimage_repo = open $manifest | get imx-mkimage | get url
+    let imx_mkimage_commit = open $manifest | get imx-mkimage | get commit-id
 
-    log_debug $"Fetching IMX MKIMAGE source code from ($IMX_MKIMAGE_REPO) to ($mkimage_dir)"
+    log_debug $"Fetching IMX MKIMAGE source code from ($imx_mkimage_repo) to ($mkimage_dir)"
 
-    git clone $IMX_MKIMAGE_REPO $mkimage_dir
+    git clone $imx_mkimage_repo $mkimage_dir
     cd $mkimage_dir
-    git checkout $IMX_MKIMAGE_COMMIT
+    git checkout $imx_mkimage_commit
     log_info "IMX MKIMAGE build completed successfully"
     cd $work_dir
 }

@@ -71,21 +71,25 @@ export def configure_greeter [rootfs_dir: string] {
   alias CHROOT = sudo chroot $rootfs_dir
 
   # Create greeter user for greetd, enable greetd-service and disable getty-service
-  log_debug "Creating greeter user for greetd, enabling greetd-service and disabling getty-service"
-  CHROOT useradd -M greeter
-  CHROOT usermod -aG video greeter
-  CHROOT usermod -aG render greeter
-  CHROOT usermod -d /usr/greeter greeter
+  # log_debug "Creating greeter user for greetd, enabling greetd-service and disabling getty-service"
+  # CHROOT useradd -M greeter
+  # CHROOT usermod -aG video greeter
+  # CHROOT usermod -aG render greeter
+  # CHROOT usermod -d /usr/greeter greeter
+
+  let config_append = "
+  # Performs auto login for default user
+  [initial_session]
+  command = \"sway\"
+  user = \"mecha\"
+  "
+
+  let greetd_config_path = $rootfs_dir + "/etc/greetd/config.toml"
+  echo $config_append | sudo tee -a $greetd_config_path
+
   CHROOT systemctl disable getty@tty1.service
   CHROOT systemctl enable greetd.service
 
-  # ### Create greeter user for greetd, enable greetd-service and disable getty-service
-  # $CHROOTCMD useradd -M greeter
-  # $CHROOTCMD usermod -aG video greeter
-  # $CHROOTCMD usermod -aG render greeter 
-  # $CHROOTCMD usermod -d /usr/greeter greeter
-  # $CHROOTCMD systemctl disable getty@tty1.service
-  # $CHROOTCMD systemctl enable greetd.service
 }
 
 

@@ -3,6 +3,7 @@ use logger.nu
 
 const PACKAGE_CONF_PATH = "conf-packages/host.yml"
 const TARGET_PACKAGE_CONF_PATH = "conf-packages/target.yml"
+const BUILD_CONF_PATH = "conf/build.yml"
 
 alias CHROOT = sudo chroot
 
@@ -90,11 +91,17 @@ export def install_linux_firmware_packages [package_conf_path: string] {
     let firmware_path =   (open $package_conf_path | get firmware-files) 
     let firmware_path = $firmware_path | path expand
 
+    let include_path =   (open $BUILD_CONF_PATH | get include-path)
+    let include_path = $include_path | path expand
+
     log_debug $"Firmware path: ($firmware_path)"
 
     sudo cp $"($firmware_path)/($firmware_imx_sdma)" $"($rootfs_dir)/tmp"
     sudo cp $"($firmware_path)/($firmware_broadcom_license)" $"($rootfs_dir)/tmp"
     sudo cp $"($firmware_path)/($firmware_bcm4355)" $"($rootfs_dir)/tmp"
+    
+    sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/broadcom-bcm43455" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
+    sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/imx-sdma" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
 
     CHROOT dpkg -i $"/tmp/($firmware_imx_sdma)"
     CHROOT dpkg -i $"/tmp/($firmware_broadcom_license)"
@@ -131,7 +138,7 @@ export def install_target_packages [] {
                 CHROOT apt-get -y --allow-change-held-packages install $pkg
             }
         }
-}
+    }
 
   
 }
