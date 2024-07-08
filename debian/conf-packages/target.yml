@@ -61,3 +61,6 @@ package_groups:
       - alsa-utils 
       - libasound2 
       - libasound2-plugins
+
+  # - linux.group
+  # - firmware.group
