@@ -101,7 +101,7 @@ def build_debians [] {
     let linux_imx_dir = $work_dir + "/linux"
 
     cd $linux_imx_dir
-    make bindeb-pkg 
+    make deb-pkg 
 
     log_info "Debian packages built successfully"
 

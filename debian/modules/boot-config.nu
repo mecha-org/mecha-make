@@ -35,12 +35,15 @@ export def enable_boot_fw [rootfs_dir: string] {
   # sudo cp $ROOTDIR/../../scripts/u-boot-initial-env $ROOTDIR/etc
 }
 
-export def boot_script [rootfs_dir: string, package_conf_path: string] {
+export def boot_script [] {
   log_info "Setting boot script:"
+
+  let rootfs_dir = $env.ROOTFS_DIR
+  let build_conf_path = $env.BUILD_CONF_PATH
 
   alias CHROOT = sudo chroot $rootfs_dir
   alias SUDO = sudo
-  let script_dir_path =  (open $package_conf_path | get scripts-path)
+  let script_dir_path =  (open $build_conf_path | get scripts-path)
   logger log_debug $"Script Directory Path: ($script_dir_path)"
 
 

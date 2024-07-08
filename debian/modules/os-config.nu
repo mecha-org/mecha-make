@@ -2,11 +2,14 @@
 
 use logger.nu
 
-export def update_os_release [rootfs_dir: string, package_conf_path: string] {
+export def update_os_release [] {
 
     log_info "Updating os-release file"
 
-    let os_info = open $package_conf_path | get os-release
+    let rootfs_dir = $env.ROOTFS_DIR
+    let build_conf_path = $env.BUILD_CONF_PATH
+
+    let os_info = open $build_conf_path | get os-release
 
     # Convert os_info to the desired format
     let os_release_content = $"
@@ -34,10 +37,12 @@ export def update_os_release [rootfs_dir: string, package_conf_path: string] {
 
 }
 
-export def oem_images [rootfs_dir: string, package_conf_path: string] {
+export def oem_images [] {
     log_info "Setting boot logo:"
-  
-    let media_files_location =  (open $package_conf_path | get media-files)
+    let rootfs_dir = $env.ROOTFS_DIR
+    let build_conf_path = $env.BUILD_CONF_PATH
+    
+    let media_files_location =  (open $build_conf_path | get media-files)
     let media_files_location = $media_files_location | path expand
   
     logger log_debug $"Script Directory Path: ($media_files_location)"

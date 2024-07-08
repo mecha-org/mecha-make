@@ -12,6 +12,8 @@ use modules/user-config.nu *
 use modules/kernel-config.nu *
 use modules/pack-rootfs.nu *
 use modules/os-config.nu *
+use modules/clean-up.nu *
+use modules/debootstrap.nu *
 
 
 const BUILD_CONF_PATH = "./conf/build.yml" 
@@ -33,16 +35,13 @@ def main [machine: string, build_dir: string] {
 
   let build_dir = $build_dir | path expand
 
-  log_debug $"Build Directory: ($build_dir)"
-
-
   let work_dir = $build_dir + "/work"
   let deploy_dir = $build_dir + "/deploy"
   let tmp_dir = $work_dir + "/tmp"
   let rootfs_dir = $deploy_dir + "/rootfs"
 
-  log_info $"Rootfs Directory: ($rootfs_dir)"
   log_info "Build Configuration:"
+  log_info $"Rootfs Directory: ($rootfs_dir)"
   log_info $"BUILD_DIR: ($build_dir)"
   log_info $"WORK_DIR: ($work_dir)"
   log_info $"DEPLOY_DIR: ($deploy_dir)\n"
@@ -61,6 +60,7 @@ def main [machine: string, build_dir: string] {
     DEPLOY_DIR: $deploy_dir,
     TMP_DIR: $tmp_dir,
     ROOTFS_DIR: $rootfs_dir,
+    BUILD_CONF_PATH: $BUILD_CONF_PATH,
     # LC_ALL: "C",
     # LANGUAGE: "C",
     # LANG: "C"
@@ -72,17 +72,17 @@ def main [machine: string, build_dir: string] {
   try {
   # Stage1: Setup rootfs
   install_host_packages
-  debootstrap
+  debootstrap_deb
   copy_qemu_arm_static
 
   mount_sys_proc_volumes
 
   make_root_home_dir
 
-  install_linux_firmware_packages $BUILD_CONF_PATH
+  install_linux_firmware_packages
   install_linux_kernel_packages
   # boot script
-  boot_script $rootfs_dir $BUILD_CONF_PATH
+  boot_script 
 
 
   install_target_packages
@@ -94,75 +94,54 @@ def main [machine: string, build_dir: string] {
 
   
   # configure_audio
-  configure_audio $rootfs_dir $BUILD_CONF_PATH
+  configure_audio 
 
   # update_os_release
-  update_os_release $rootfs_dir $BUILD_CONF_PATH
+  update_os_release 
 
   # configure_udev
-  configure_udev $rootfs_dir $BUILD_CONF_PATH
+  configure_udev
 
   # configure_networking
-  configure_networking $rootfs_dir
+  configure_networking 
 
   # oem_images
-  oem_images $rootfs_dir $BUILD_CONF_PATH
+  oem_images 
 
   # enable_easysplash
   # enable_easysplash $rootfs_dir 
   # enable_boot_fw  $rootfs_dir
 
   # configure_bluetooth
-  configure_bluetooth $rootfs_dir $BUILD_CONF_PATH
+  configure_bluetooth
 
   # configure_ssh
-  configure_ssh $rootfs_dir $BUILD_CONF_PATH
+  configure_ssh 
 
   # configure_default_user
-  configure_default_user $rootfs_dir $BUILD_CONF_PATH
+  configure_default_user
 
   # configure_greeter
-  configure_greeter $rootfs_dir
+  configure_greeter
 
   # configure_sys_files
-  configure_sys_files $rootfs_dir $BUILD_CONF_PATH
+  configure_sys_files
 
   # Stage4: Cleanup
   unmount_sys_proc_volumes
 
   # Pack rootfs
-  pack_root_fs $rootfs_dir $deploy_dir
+  pack_root_fs 
 
 
   } catch {
     |err| 
     log_error $"Failed to build Mechanix: ($err)"
-    ensure_unmount
+    clean_build_dir
   }
-
 
 }
 
-def debootstrap [] {
-  log_info "Debootstrapping debian:"
-  let work_dir = $env.WORK_DIR;
-  let tmp_dir = $env.TMP_DIR;
-  let deploy_dir = $env.DEPLOY_DIR;
-  let rootfs_dir = $env.ROOTFS_DIR;
-
-  # Check if `debootstrap` is installed
-  let $is_deboostrap_installed = dpkg -l | grep debootstrap | length
-
-  # Install `debootstrap` package, if not installed
-  if $is_deboostrap_installed == 0 {
-    log_error "`debootstrap` is not installed, cannot continue further."
-    return
-  }
- 
-  # TODO: uncomment
-  SUDO debootstrap --arch arm64 --foreign --no-check-gpg --include=eatmydata,gnupg bookworm $rootfs_dir http://deb.debian.org/debian
-  CHROOT $rootfs_dir /debootstrap/debootstrap --second-stage
-}
 
 def copy_qemu_arm_static [] {
   log_info "Copying qemu-arm-static:"
@@ -213,20 +192,6 @@ def mount_sys_proc_volumes [] {
 
 
 
-def unmount_sys_proc_volumes [] {
-  log_info "Unmounting sys, proc volumes:"
-
-  let rootfs_dir = $env.ROOTFS_DIR
-
-  # Check if volumes are mounted before attempting to unmount
-  if (SUDO mount | grep $"($rootfs_dir)/sys" | length) > 0 {
-    SUDO umount $"($rootfs_dir)/sys"
-  }
-  if (SUDO mount | grep $"($rootfs_dir)/proc" | length) > 0 {
-    SUDO umount $"($rootfs_dir)/proc"
-  }
-}
-
 def setup_default_locale_timezone [] {
   log_info "Setting up default locale, timezone:"
   let rootfs_dir = $env.ROOTFS_DIR
@@ -237,15 +202,4 @@ def setup_default_locale_timezone [] {
 
   # TODO: Why is this disabled
   #$CHROOTCMD systemctl enable systemd-timesyncd
-}
-
-
-def ensure_unmount [] {
-  log_info "Ensuring all volumes are unmounted"
-  try {
-    unmount_sys_proc_volumes
-  } catch {
-    |err| 
-    log_warn $"Failed to unmount volumes: ($err)"
-  }
 }

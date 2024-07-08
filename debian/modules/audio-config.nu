@@ -4,12 +4,14 @@ use logger.nu
 
 alias SUDO = sudo
 
-export def configure_audio [rootfs_dir: string, package_dir_path: string] {
+export def configure_audio [] {
   log_info "Configuring audio:"
+  let rootfs_dir = $env.ROOTFS_DIR
+  let build_conf_path = $env.BUILD_CONF_PATH
 
-  log_debug $"package_dir_path: ($package_dir_path)"
+  log_debug $"package_dir_path: ($build_conf_path)"
 
-  let package_dir_path = open $package_dir_path | get packages-path
+  let package_dir_path = open $build_conf_path | get packages-path
 
   
   let asound_state_src = $package_dir_path + "/asound.state"

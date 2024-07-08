@@ -7,11 +7,14 @@ use logger.nu
 
 alias SUDO = sudo
 
-export def configure_sys_files [rootfs_dir: string, package_conf_path: string] {
+export def configure_sys_files [] {
 
   log_info "Configuring system files:"
+  let rootfs_dir = $env.ROOTFS_DIR
+  let build_conf_path = $env.BUILD_CONF_PATH
+  
 
-  let script_dir_path =  (open $package_conf_path | get scripts-path)
+  let script_dir_path =  (open $build_conf_path | get scripts-path)
 
   let domain_contet = '127.0.0.1       localhost.localdomain           mecha-comet-m-gen1'
   let temp_file = "/tmp/domain-content"
@@ -65,8 +68,9 @@ export def configure_sys_files [rootfs_dir: string, package_conf_path: string] {
 
 }
 
-export def configure_greeter [rootfs_dir: string] {
+export def configure_greeter [] {
   log_info "Configuring greeter:"
+  let rootfs_dir = $env.ROOTFS_DIR
 
   alias CHROOT = sudo chroot $rootfs_dir
 
@@ -94,11 +98,12 @@ export def configure_greeter [rootfs_dir: string] {
 
 
 
-export def configure_ssh [rootfs_dir: string, package_conf_path: string] {
+export def configure_ssh [] {
   log_info "Configuring ssh:"
+  let rootfs_dir = $env.ROOTFS_DIR
+  let build_conf_path = $env.BUILD_CONF_PATH
 
-
-  let script_dir_path =  (open $package_conf_path | get scripts-path)
+  let script_dir_path =  (open $build_conf_path | get scripts-path)
   alias CHROOT = sudo chroot $rootfs_dir
 
   CHROOT rm /etc/ssh/ssh_host_*
@@ -124,11 +129,14 @@ export def configure_ssh [rootfs_dir: string, package_conf_path: string] {
 }
 
 
-export def configure_udev [rootfs_dir: string, package_conf_path: string] {
+export def configure_udev [] {
 
   log_info "Configuring udev:"
 
-  let script_dir_path =  (open $package_conf_path | get scripts-path)
+  let rootfs_dir = $env.ROOTFS_DIR
+  let build_conf_path = $env.BUILD_CONF_PATH
+
+  let script_dir_path =  (open $build_conf_path | get scripts-path)
 
 
   let udev_rules_src = $script_dir_path + "/10-imx.rules"

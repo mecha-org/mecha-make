@@ -4,9 +4,9 @@ use logger.nu
 
 alias SUDO = sudo
 
-export def configure_networking [rootfs_dir: string] {
+export def configure_networking [] {
     log_info "Configuring networking:"
-  
+    let rootfs_dir = $env.ROOTFS_DIR
     alias CHROOT = sudo chroot $rootfs_dir
   
     
@@ -24,11 +24,13 @@ export def configure_networking [rootfs_dir: string] {
 
 
 
-export def configure_bluetooth [rootfs_dir: string, package_conf_path: string] {
+export def configure_bluetooth [] {
 log_info "Configuring bluetooth Service:"
 
+let rootfs_dir = $env.ROOTFS_DIR
+let build_conf_path = $env.BUILD_CONF_PATH
 
-let script_dir_path =  (open $package_conf_path | get scripts-path)
+let script_dir_path =  (open $build_conf_path | get scripts-path)
 alias CHROOT = sudo chroot $rootfs_dir
 
 let bluetooth_hci_enable_service_src = $script_dir_path + "/bluetooth-hci-enable.service"

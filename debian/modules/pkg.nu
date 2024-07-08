@@ -1,9 +1,9 @@
 #!/usr/bin/env nu
 use logger.nu
 
-const PACKAGE_CONF_PATH = "conf-packages/host.yml"
-const TARGET_PACKAGE_CONF_PATH = "conf-packages/target.yml"
-const BUILD_CONF_PATH = "conf/build.yml"
+const HOST_INSTALLATION_CONF = "conf-packages/host.yml"
+const TARGET_INSTALLATION_CONF = "conf-packages/target.yml"
+
 
 alias CHROOT = sudo chroot
 
@@ -29,10 +29,10 @@ export def install_host_packages [] {
     # add the package source
     
 
-    # let packages = open $PACKAGE_CONF_PATH;
-    log_debug $"Number of packages found: (open $PACKAGE_CONF_PATH | get packages | length)"
+    # let packages = open $HOST_INSTALLATION_CONF;
+    log_debug $"Number of packages found: (open $HOST_INSTALLATION_CONF | get packages | length)"
 
-    let _  = open $PACKAGE_CONF_PATH | get packages | each {|pkg| 
+    let _  = open $HOST_INSTALLATION_CONF | get packages | each {|pkg| 
         install_package $pkg.name $pkg.url $pkg.sha
     }
 }
@@ -76,11 +76,12 @@ export def install_linux_kernel_packages [] {
     # TODO: remove from rootfs/tmp
 }
 
-export def install_linux_firmware_packages [package_conf_path: string] {
+export def install_linux_firmware_packages [] {
     log_info "Installing linux firmware packages:"
 
     let rootfs_dir = $env.ROOTFS_DIR
     let deploy_dir = $env.DEPLOY_DIR
+    let build_conf_path = $env.BUILD_CONF_PATH
     alias CHROOT = sudo chroot $rootfs_dir
 
     # copy the debs
@@ -88,10 +89,10 @@ export def install_linux_firmware_packages [package_conf_path: string] {
     let firmware_broadcom_license = "linux-firmware-broadcom-license_20230210-r0_all.deb"
     let firmware_bcm4355 = "linux-firmware-bcm43455_20230210-r0_all.deb"
 
-    let firmware_path =   (open $package_conf_path | get firmware-files) 
+    let firmware_path =   (open $build_conf_path | get firmware-files) 
     let firmware_path = $firmware_path | path expand
 
-    let include_path =   (open $BUILD_CONF_PATH | get include-path)
+    let include_path =   (open $build_conf_path | get include-path)
     let include_path = $include_path | path expand
 
     log_debug $"Firmware path: ($firmware_path)"
@@ -99,9 +100,10 @@ export def install_linux_firmware_packages [package_conf_path: string] {
     sudo cp $"($firmware_path)/($firmware_imx_sdma)" $"($rootfs_dir)/tmp"
     sudo cp $"($firmware_path)/($firmware_broadcom_license)" $"($rootfs_dir)/tmp"
     sudo cp $"($firmware_path)/($firmware_bcm4355)" $"($rootfs_dir)/tmp"
-    
-    sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/broadcom-bcm43455" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
-    sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/imx-sdma" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
+
+    # need to check what is this for
+    # sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/broadcom-bcm43455" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
+    # sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/imx-sdma" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
 
     CHROOT dpkg -i $"/tmp/($firmware_imx_sdma)"
     CHROOT dpkg -i $"/tmp/($firmware_broadcom_license)"
@@ -122,7 +124,7 @@ export def install_target_packages [] {
     CHROOT apt-get update
 
 
-    let package_groups = open $TARGET_PACKAGE_CONF_PATH | get package_groups
+    let package_groups = open $TARGET_INSTALLATION_CONF | get package_groups
 
     for pkg_group in $package_groups {
         log_debug $"Installing package group: ($pkg_group.packages)"

@@ -4,14 +4,15 @@ use logger.nu
 
 alias SUDO = sudo
 
-export def configure_default_user [rootfs_dir: string, package_conf_path: string] {
+export def configure_default_user [] {
    log_info "Configuring default user:"
 
   let rootfs_dir = $env.ROOTFS_DIR
+  let build_conf_path = $env.BUILD_CONF_PATH
 
   alias CHROOT = sudo chroot $rootfs_dir
 
-  let user_data = open $package_conf_path | get user 
+  let user_data = open $build_conf_path | get user 
   let user_name = $user_data.name
   let user_password = $user_data.password
 
