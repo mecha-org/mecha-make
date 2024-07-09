@@ -56,3 +56,31 @@ export def oem_images [] {
   
     log_debug "Setting logo Successfully."
 }
+
+export def disable_diaply_service [] {
+    log_info "disabling display service:"
+    let rootfs_dir = $env.ROOTFS_DIR
+
+    let display_service = $rootfs_dir + /usr/lib/systemd/system/systemd-backlight@.service
+    let disable_display_service = $rootfs_dir + /usr/lib/systemd/system/disabled-systemd-backlight@.service
+
+    if ($display_service | path exists) {
+        log_info $"Found display service at ($display_service). Disabling..."
+        
+        let result = (do {
+            sudo mv $display_service $disable_display_service
+        } | complete)
+
+        if $result.exit_code == 0 {
+            log_debug "Display service disabled successfully."
+            return 0
+        } else {
+            log_error $"Failed to disable display service: ($result.stderr)"
+            return 1
+        }
+    } else {
+        log_info "Display service not found. No action needed."
+        return 0
+    }
+
+}
