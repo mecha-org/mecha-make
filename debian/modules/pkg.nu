@@ -98,6 +98,9 @@ export def install_linux_firmware_packages [] {
     sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/broadcom-bcm43455" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
     sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/imx-sdma" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
 
+    sudo chmod 755 $"($rootfs_dir)/usr/share/initramfs-tools/hooks/broadcom-bcm43455"
+    sudo chmod 755 $"($rootfs_dir)/usr/share/initramfs-tools/hooks/imx-sdma"
+
     CHROOT dpkg -i $"/tmp/($firmware_imx_sdma)"
     CHROOT dpkg -i $"/tmp/($firmware_broadcom_license)"
     CHROOT dpkg -i $"/tmp/($firmware_bcm4355)"
