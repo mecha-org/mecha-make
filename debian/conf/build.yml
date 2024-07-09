@@ -15,7 +15,8 @@ debian:
   version: 12
   name: bookworm
 apt:
-  sources:
+  sources: 
+    - http://debian.mecha.build apollo main
 os-release:
   ID: mechanix
   ID_LIKE:

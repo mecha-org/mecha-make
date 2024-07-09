@@ -7,6 +7,7 @@ packages:
   - greeter.group
   - audio.group
   - graphics.group
+  - mechanix.group
 package_groups:
   - name: linux
     packages:
@@ -20,7 +21,7 @@ package_groups:
       - sudo
       - bash-completion
       - dosfstools
-      - cpufreq-utils
+      - cpufrequtils
       - upower
   - name: network
     packages:
@@ -61,6 +62,10 @@ package_groups:
       - alsa-utils 
       - libasound2 
       - libasound2-plugins
+  - name: mechanix
+    packages:
+      - mecha-agent
+
 
   # - linux.group
   # - firmware.group

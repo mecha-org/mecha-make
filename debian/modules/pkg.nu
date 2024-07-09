@@ -45,18 +45,9 @@ export def install_linux_kernel_packages [] {
     alias CHROOT = sudo chroot $rootfs_dir
 
     # copy the debs
-    let kernel_version = "6.1.22mecha+"
-    let kernel_build = "6"
+    let kernel_version = "6.1.22+mecha"
+    let kernel_build = "1"
     let target_arch = "arm64"
-
-    # KERNELRELEASE=6.1.22-g079cc60d9b2c ARCH=arm64     KBUILD_BUILD_VERSION=2 -f
-
-    
-    # finding
-    # /debs/linux-image-6.1.22mecha+_6.1.22mecha+-1_arm64.deb
-
-    # required
-    # /home/jack/Desktop/mecha/BUILD_SYSTEM_DATA/deploy/kernel/debs/linux-image-6.1.22mecha+_6.1.22mecha+-6_arm64.deb
 
     let linux_image_deb = $"linux-image-($kernel_version)_($kernel_version)-($kernel_build)_($target_arch).deb"
     let linux_headers_deb = $"linux-headers-($kernel_version)_($kernel_version)-($kernel_build)_($target_arch).deb"
@@ -104,6 +95,8 @@ export def install_linux_firmware_packages [] {
     # need to check what is this for
     # sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/broadcom-bcm43455" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
     # sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/imx-sdma" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
+    sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/broadcom-bcm43455" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
+    sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/imx-sdma" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
 
     CHROOT dpkg -i $"/tmp/($firmware_imx_sdma)"
     CHROOT dpkg -i $"/tmp/($firmware_broadcom_license)"
@@ -144,3 +137,79 @@ export def install_target_packages [] {
 
   
 }
+
+def add_debian_mechanix_source [] {
+    let rootfs_dir = $env.ROOTFS_DIR
+    alias CHROOT = sudo chroot $rootfs_dir
+
+    let sources_list_path = "/etc/apt/sources.list"
+
+    # Get the package source from the YAML configuration
+    let build_conf_path = $env.BUILD_CONF_PATH
+    let deb_package_sources = open $build_conf_path | get apt | get sources
+
+    log_info "Adding Mechanix package sources to sources.list"
+
+    # Iterate through each source and add it to sources.list
+    $deb_package_sources | each { |source|
+        let source_line = $"deb [trusted=yes] ($source)"
+        log_debug $"Adding source: ($source_line)"
+        
+        sudo chroot $rootfs_dir bash -c $"echo '($source_line)' >> ($sources_list_path)"
+
+        if $env.LAST_EXIT_CODE != 0 {
+            log_error $"Failed to add source: ($source_line)"
+            return
+        }
+    }
+
+    log_info "Successfully added all Mechanix package sources"
+
+    # Update package lists
+    log_info "Updating package lists"
+    CHROOT apt-get update
+
+    if $env.LAST_EXIT_CODE == 0 {
+        log_info "Successfully updated package lists"
+    } else {
+        log_error "Failed to update package lists"
+    }
+}
+
+export def install_mechanix_packages [] {
+    log_info "Installing Mechanix packages:"
+
+    let rootfs_dir = $env.ROOTFS_DIR
+    alias CHROOT = sudo chroot $rootfs_dir
+
+    add_debian_mechanix_source
+
+     # Get package groups from the YAML file
+    let package_groups = open $TARGET_INSTALLATION_CONF | get package_groups
+
+    # Find the mechanix group and get its packages
+    let mechanix_packages = $package_groups | where name == "mechanix" | get packages | flatten
+
+    # Log the list of mechanix packages
+    log_debug $"Mechanix packages: ($mechanix_packages)"
+
+    if ($mechanix_packages | length) == 0 {
+        log_error "No packages found in the mechanix group"
+        return
+    }
+
+    # Convert the list of packages to a space-separated string
+    let packages_string = $mechanix_packages | str join " "
+
+    # Install the mechanix packages
+    log_info $"Installing mechanix packages: ($packages_string)"
+    CHROOT apt-get -y --allow-change-held-packages install $packages_string
+
+    if $env.LAST_EXIT_CODE == 0 {
+        log_info "Successfully installed mechanix packages"
+    } else {
+        log_error "Failed to install mechanix packages"
+    }
+}
+
+
