@@ -92,9 +92,6 @@ export def install_linux_firmware_packages [] {
     sudo cp $"($firmware_path)/($firmware_broadcom_license)" $"($rootfs_dir)/tmp"
     sudo cp $"($firmware_path)/($firmware_bcm4355)" $"($rootfs_dir)/tmp"
 
-    # need to check what is this for
-    # sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/broadcom-bcm43455" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
-    # sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/imx-sdma" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
     sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/broadcom-bcm43455" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
     sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/imx-sdma" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
 
