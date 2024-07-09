@@ -1,0 +1,38 @@
+hostname: mecha-comet-m
+locale:
+  timezone: America/Los_Angeles
+  lang: en-US.UTF-8
+user:
+  name: mecha
+  password: mecha
+  is_password_expired: true
+ssh:
+  user_ca:
+  host_ca:
+  authorized_keys: []
+  is_password_authentication_disabled: false
+debian:
+  version: 12
+  name: bookworm
+apt:
+  sources: 
+    - http://debian.mecha.build apollo main
+os-release:
+  ID: mechanix
+  ID_LIKE:
+    - debian
+  NAME: Mechanix
+  VERSION: "24.03.0 LTS (Apollo)"
+  VERSION_ID: "24.03"
+  VERSION_CODENAME: Apollo
+  PRETTY_NAME: "Mechanix 24.03 LTS"
+  HOME_URL: "https://mecha.so/"
+  SUPPORT_URL: "https://forum.mecha.so/"
+  BUG_REPORT_URL: "https://forum.mecha.so/"
+
+#  make this as relative path
+packages-path: ./include/packages/
+scripts-path:  ./include/scripts/
+media-files : ./include/media-files
+firmware-files : ./include/packages/firmware
+include-path: ./include

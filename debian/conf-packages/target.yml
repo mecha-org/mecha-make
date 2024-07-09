@@ -1,0 +1,71 @@
+packages:
+  - system.group
+  - network.group
+  - build.group
+  - locale.group
+  - wayland.group
+  - greeter.group
+  - audio.group
+  - graphics.group
+  - mechanix.group
+package_groups:
+  - name: linux
+    packages:
+  - name: firmware
+    packages:
+  - name: system
+    packages:
+      - dbus
+      - nano
+      - openssh-server
+      - sudo
+      - bash-completion
+      - dosfstools
+      - cpufrequtils
+      - upower
+  - name: network
+    packages:
+      - bluez
+      - hostapd
+      - file
+      - ethtool
+      - network-manager
+      - net-tools
+      - curl
+  - name: build
+    packages:
+      - python3
+  - name: graphics
+    packages:
+      - mesa-utils
+  - name: locale
+    packages:
+      - systemd-timesyncd
+      - locales
+      # - systemd-services
+  - name: wayland
+    packages:
+      - xwayland
+      - xorg
+      # - meta-utils
+      - sway
+      - weston
+  - name: greeter
+    packages:
+      - greetd
+  - name: audio
+    packages:
+      - pulseaudio
+      - mpg123
+      - pulseaudio-module-bluetooth
+      - alsa-tools 
+      - alsa-utils 
+      - libasound2 
+      - libasound2-plugins
+  - name: mechanix
+    packages:
+      - mecha-agent
+
+
+  # - linux.group
+  # - firmware.group
