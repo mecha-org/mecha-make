@@ -87,12 +87,17 @@ def main [machine: string, build_dir: string] {
 
   install_target_packages
 
+  install_mechanix_packages
+
   # Stage3: Configure rootfs
 
   # set_hostname
   # setup_default_locale_timezone
 
   
+  # disable_diaply_service
+  disable_diaply_service
+
   # configure_audio
   configure_audio 
 
