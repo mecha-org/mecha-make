@@ -72,7 +72,9 @@ def build_kernel [] {
     make clean
     # make manuconfig but we're using noninteractive mode
     log_info "triggering kernel Make command"
+    touch .scmversion
     yes "" | make -j (nproc)
+    rm .version
     make modules
 
     cd $work_dir
@@ -101,7 +103,7 @@ def build_debians [] {
     let linux_imx_dir = $work_dir + "/linux"
 
     cd $linux_imx_dir
-    make deb-pkg 
+    make deb-pkg -j (nproc)
 
     log_info "Debian packages built successfully"
 
