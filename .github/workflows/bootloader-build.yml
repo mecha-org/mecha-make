@@ -39,7 +39,7 @@ jobs:
       - name: Build Directory
         run: |
           mkdir -p build
-    
+
       - name: Run Bootloader Build Script
         run: |
           cd bootloader
@@ -47,4 +47,19 @@ jobs:
 
       - name: List all files
         run: |
-          ls -laR build/deploy    
+          ls -laR build/deploy
+
+      - name: Prepare bootloader artifacts
+        run: |
+          mkdir artifacts
+          cp -r ./build/deploy/* ./artifacts
+
+      - name: List all Artifacts
+        run: |
+          ls -laR artifacts  
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bootloader-artifacts
+          path: ./artifacts/*
