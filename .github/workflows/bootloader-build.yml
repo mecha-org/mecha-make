@@ -1,0 +1,65 @@
+name: Bootloader Build
+on:
+  push:
+    branches:
+      - main
+      - dev*
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && \
+          sudo apt-get install -y \
+          curl \
+          wget \
+          build-essential \
+          gcc-aarch64-linux-gnu \
+          bison \
+          flex \
+          libssl-dev \
+          libncurses-dev \
+          uuid-dev \
+          libgnutls28-dev \
+          git \
+          zlib1g-dev \
+          device-tree-compiler
+
+      - name: Install Nushell
+        run: |
+          curl -L https://github.com/nushell/nushell/releases/download/0.95.0/nu-0.95.0-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv nu-0.95.0-x86_64-unknown-linux-gnu/nu /usr/local/bin/
+          rm -rf nu-0.95.0-x86_64-unknown-linux-gnu
+
+      - name: Build Directory
+        run: |
+          mkdir -p build
+
+      - name: Run Bootloader Build Script
+        run: |
+          cd bootloader
+          nu build-bootloader.nu   mecha-comet-m-gen1 ../build
+
+      - name: List all files
+        run: |
+          ls -laR build/deploy
+
+      - name: Prepare bootloader artifacts
+        run: |
+          mkdir artifacts
+          cp -r ./build/deploy/* ./artifacts
+
+      - name: List all Artifacts
+        run: |
+          ls -laR artifacts  
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bootloader-artifacts
+          path: ./artifacts/*
