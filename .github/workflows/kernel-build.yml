@@ -21,7 +21,7 @@ jobs:
           git \
           curl \
           rsync \
-          cpio
+          cpio 
 
       - name: Set up Git SSH key
         run: |
@@ -48,3 +48,18 @@ jobs:
       - name: List all files
         run: |
           ls -laR build/deploy    
+
+      - name: Prepare Kernel artifacts
+        run: |
+          mkdir artifacts
+          cp -r ./build/deploy/* ./artifacts
+
+      - name: List all Artifacts
+        run: |
+          ls -laR artifacts    
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-artifacts
+          path: ./artifacts/*  
