@@ -24,7 +24,7 @@ export def check_and_install_dependencies [] {
     } else {
            log_info "Installing missing dependencies..."
             for dep in $missing_deps {
-                SUDO apt install $dep
+                SUDO apt install -y $dep
             }
     }
 }
