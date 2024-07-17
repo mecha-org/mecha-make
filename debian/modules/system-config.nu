@@ -16,7 +16,7 @@ export def configure_sys_files [] {
 
   let script_dir_path =  (open $build_conf_path | get scripts-path)
 
-  let domain_contet = '127.0.0.1       localhost.localdomain           mecha-comet-m-gen1'
+  let domain_contet = '127.0.0.1       localhost.localdomain           comet-m'
   let temp_file = "/tmp/domain-content"
 
   echo $domain_contet | save --force $temp_file
@@ -25,7 +25,7 @@ export def configure_sys_files [] {
 
   SUDO mv $temp_file $hosts_dest
 
-  let hostname_content = "mecha-comet-m-gen1"
+  let hostname_content = "comet-m"
   let temp_file = "/tmp/hostname-content"
 
   echo $hostname_content | save --force $temp_file
