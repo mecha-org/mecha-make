@@ -32,6 +32,7 @@ package_groups:
       - network-manager
       - net-tools
       - curl
+      - wget
   - name: build
     packages:
       - python3
