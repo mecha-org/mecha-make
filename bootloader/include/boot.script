@@ -1,19 +1,35 @@
 # Set uboot args in .header
-#rootfs_part=/dev/mmcblk2p2
-#kernel_comp_addr_r=0x53800000
-#kernel_comp_size=0x12800000
-#fdt_file=imx8mm-mecha-comet-m-gen1.dtb
+# rootfs_part=/dev/mmcblk2p2
+# kernel_comp_addr_r=0x53800000
+# kernel_comp_size=0x12800000
+# fdt_file=imx8mm-mecha-comet-m-gen1.dtb
+
 # Uboot script
 setenv fk_kvers '6.1.22+mecha'
 setenv bootargs ${bootargs} console=${console} root=${rootfs_part}
 
 # Setting fdt path
 setenv fdt_path /usr/lib/linux-image-${fk_kvers}/freescale/${fdt_file}
-# Boot versioned kernel
+
 fatload mmc ${mmcdev}:1 ${loadaddr} vmlinuz-${fk_kvers}
 fatload mmc ${mmcdev}:1 ${initrd_addr} initrd.img-${fk_kvers}
 ext4load mmc ${mmcdev}:2 ${fdt_addr} ${fdt_path}
+
+# Apply device tree overlays
+run set_fdt_overlay_addr
+run set_fdt_overlays_env
+run import_fdt_overlays_env
+fdt addr 0x43000000
+fdt resize 8192
+run load_fdt_overlays
+#run apply_fdt_overlays
+
+# Boot versioned kernel
+# fatload mmc ${mmcdev}:1 ${loadaddr} vmlinuz-${fk_kvers}
+# fatload mmc ${mmcdev}:1 ${initrd_addr} initrd.img-${fk_kvers}
+# ext4load mmc ${mmcdev}:2 ${fdt_addr} ${fdt_path}
 booti ${loadaddr} ${initrd_addr}:0x12800000 ${fdt_addr}
+
 # Boot unversioned kernel
 #fatload mmc ${mmcdev}:1 ${loadaddr} vmlinux
 #fatload mmc ${mmcdev}:1 ${initrd_addr} initrd.img
