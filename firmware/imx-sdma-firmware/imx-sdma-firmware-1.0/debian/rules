@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+DEB_DESTDIR := debian/imx-sdma-firmware
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- --libdir=/lib
+
+override_dh_auto_install:
+	dh_auto_install
+	mkdir -p $(DEB_DESTDIR)/lib/firmware/imx/sdma
+
+	cp $(CURDIR)/sdma-imx7d.bin \
+		$(DEB_DESTDIR)/lib/firmware/imx/sdma/.
+
+	# Copy firmware of Mecha-comet-m-gen1
+	mkdir -p $(DEB_DESTDIR)/usr/share/initramfs-tools/hooks/
+	cp $(CURDIR)/imx-sdma \
+		$(DEB_DESTDIR)/usr/share/initramfs-tools/hooks/.
+	# Change permission of hooks
+	chmod 755 $(DEB_DESTDIR)/usr/share/initramfs-tools/hooks/*		
