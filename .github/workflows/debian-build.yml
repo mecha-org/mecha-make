@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubicloud-standard-2-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,3 +45,9 @@ jobs:
       - name: list all contents of assets
         run: |
            ls -la $GITHUB_WORKSPACE/assets/
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-artifacts
+          path: $GITHUB_WORKSPACE/assets/*  
