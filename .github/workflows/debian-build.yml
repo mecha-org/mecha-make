@@ -49,5 +49,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: kernel-artifacts
-          path: $GITHUB_WORKSPACE/assets/*  
+          name: debian-artifacts
+          path: ./assets/*  
