@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-DEB_DESTDIR := debian/bluez
+DEB_DESTDIR := debian/bluez-firmware
 
 %:
 	dh $@
