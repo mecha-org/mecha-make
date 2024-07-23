@@ -24,16 +24,14 @@ jobs:
           git \
 
       - name: Create assets directory
-        run: | 
-            mkdir -p assets
-
+        run: |
+          mkdir -p assets
 
       - name: Build debian for bluetooth
         run: |
-             cd firmware/bluez/bluez-1.0
-             dpkg-buildpackage -us -uc
-             cp ../*.deb  $GITHUB_WORKSPACE/assets/
-             ls -la ../
+          cd firmware/bluez/bluez-firmware-1.0
+          dpkg-buildpackage -us -uc
+          cp ../*.deb  $GITHUB_WORKSPACE/assets/
 
       - name: Build debian for Imx-sdma
         run: |
@@ -44,10 +42,10 @@ jobs:
 
       - name: list all contents of assets
         run: |
-           ls -la $GITHUB_WORKSPACE/assets/
-      
+          ls -la $GITHUB_WORKSPACE/assets/
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: debian-artifacts
-          path: ./assets/*  
+          path: ./assets/*
