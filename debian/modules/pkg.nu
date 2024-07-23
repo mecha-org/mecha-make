@@ -37,74 +37,6 @@ export def install_host_packages [] {
     }
 }
 
-export def install_linux_kernel_packages [] {
-    log_info "Installing linux kernel packages:"
-
-    let rootfs_dir = $env.ROOTFS_DIR
-    let deploy_dir = $env.DEPLOY_DIR
-    alias CHROOT = sudo chroot $rootfs_dir
-
-    # copy the debs
-    let kernel_version = "6.1.22+mecha"
-    let kernel_build = "1"
-    let target_arch = "arm64"
-
-    let linux_image_deb = $"linux-image-($kernel_version)_($kernel_version)-($kernel_build)_($target_arch).deb"
-    let linux_headers_deb = $"linux-headers-($kernel_version)_($kernel_version)-($kernel_build)_($target_arch).deb"
-    let linux_libc_dev_deb = $"linux-libc-dev_($kernel_version)-($kernel_build)_($target_arch).deb"
-
-    sudo cp $"($deploy_dir)/kernel/debs/($linux_image_deb)" $"($rootfs_dir)/tmp"
-    sudo cp $"($deploy_dir)/kernel/debs/($linux_headers_deb)" $"($rootfs_dir)/tmp"
-    sudo cp $"($deploy_dir)/kernel/debs/($linux_libc_dev_deb)" $"($rootfs_dir)/tmp"
-
-
-    CHROOT apt-get update
-    CHROOT apt-get -y install initramfs-tools
-    CHROOT dpkg -i $"/tmp/($linux_image_deb)"
-    CHROOT dpkg -i $"/tmp/($linux_headers_deb)"
-    CHROOT dpkg -i $"/tmp/($linux_libc_dev_deb)"
-
-    # TODO: remove from rootfs/tmp
-}
-
-export def install_linux_firmware_packages [] {
-    log_info "Installing linux firmware packages:"
-
-    let rootfs_dir = $env.ROOTFS_DIR
-    let deploy_dir = $env.DEPLOY_DIR
-    let build_conf_path = $env.BUILD_CONF_PATH
-    alias CHROOT = sudo chroot $rootfs_dir
-
-    # copy the debs
-    let firmware_imx_sdma = "firmware-imx-sdma-imx7d_8.20-r0_all.deb"
-    let firmware_broadcom_license = "linux-firmware-broadcom-license_20230210-r0_all.deb"
-    let firmware_bcm4355 = "linux-firmware-bcm43455_20230210-r0_all.deb"
-
-    let firmware_path =   (open $build_conf_path | get firmware-files) 
-    let firmware_path = $firmware_path | path expand
-
-    let include_path =   (open $build_conf_path | get include-path)
-    let include_path = $include_path | path expand
-
-    log_debug $"Firmware path: ($firmware_path)"
-
-    sudo cp $"($firmware_path)/($firmware_imx_sdma)" $"($rootfs_dir)/tmp"
-    sudo cp $"($firmware_path)/($firmware_broadcom_license)" $"($rootfs_dir)/tmp"
-    sudo cp $"($firmware_path)/($firmware_bcm4355)" $"($rootfs_dir)/tmp"
-
-    sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/broadcom-bcm43455" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
-    sudo cp $"($include_path)/usr/share/initramfs-tools/hooks/imx-sdma" $"($rootfs_dir)/usr/share/initramfs-tools/hooks"
-
-    sudo chmod 755 $"($rootfs_dir)/usr/share/initramfs-tools/hooks/broadcom-bcm43455"
-    sudo chmod 755 $"($rootfs_dir)/usr/share/initramfs-tools/hooks/imx-sdma"
-
-    CHROOT dpkg -i $"/tmp/($firmware_imx_sdma)"
-    CHROOT dpkg -i $"/tmp/($firmware_broadcom_license)"
-    CHROOT dpkg -i $"/tmp/($firmware_bcm4355)"
-
-    # TODO: remove from rootfs/tmp
-}
-
 export def install_target_packages [] {
 
     log_info "Installing target packages:"
@@ -138,7 +70,7 @@ export def install_target_packages [] {
   
 }
 
-def add_debian_mechanix_source [] {
+export def add_debian_mechanix_source [] {
     let rootfs_dir = $env.ROOTFS_DIR
     alias CHROOT = sudo chroot $rootfs_dir
 
@@ -176,40 +108,6 @@ def add_debian_mechanix_source [] {
     }
 }
 
-export def install_mechanix_packages [] {
-    log_info "Installing Mechanix packages:"
 
-    let rootfs_dir = $env.ROOTFS_DIR
-    alias CHROOT = sudo chroot $rootfs_dir
-
-    add_debian_mechanix_source
-
-     # Get package groups from the YAML file
-    let package_groups = open $TARGET_INSTALLATION_CONF | get package_groups
-
-    # Find the mechanix group and get its packages
-    let mechanix_packages = $package_groups | where name == "mechanix" | get packages | flatten
-
-    # Log the list of mechanix packages
-    log_debug $"Mechanix packages: ($mechanix_packages)"
-
-    if ($mechanix_packages | length) == 0 {
-        log_error "No packages found in the mechanix group"
-        return
-    }
-
-    # Convert the list of packages to a space-separated string
-    let packages_string = $mechanix_packages | str join " "
-
-    # Install the mechanix packages
-    log_info $"Installing mechanix packages: ($packages_string)"
-    CHROOT apt-get -y --allow-change-held-packages install $packages_string
-
-    if $env.LAST_EXIT_CODE == 0 {
-        log_info "Successfully installed mechanix packages"
-    } else {
-        log_error "Failed to install mechanix packages"
-    }
-}
 
 
