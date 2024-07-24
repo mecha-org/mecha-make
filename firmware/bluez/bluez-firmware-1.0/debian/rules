@@ -31,6 +31,10 @@ override_dh_auto_install:
 	cp $(CURDIR)/broadcom-4533/broadcom/*.hcd \
 		$(DEB_DESTDIR)/etc/firmware/.
 
+	# Copy regulatory.db files of Mecha-comet-m-gen1
+	cp $(CURDIR)/broadcom-4533/broadcom/regulatory* \
+		$(DEB_DESTDIR)/lib/firmware/.		
+
 	# Copy hooks of Mecha-comet-m-gen1
 	mkdir -p $(DEB_DESTDIR)/usr/share/initramfs-tools/hooks
 	cp $(CURDIR)/broadcom-4533/initramfs-tools/hooks/* \
