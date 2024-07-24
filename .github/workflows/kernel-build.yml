@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu:22.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,14 +21,14 @@ jobs:
           git \
           curl \
           rsync \
-          cpio 
+          cpio
 
       - name: Set up Git SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY_GIT }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts    
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Install Nushell
         run: |
@@ -39,7 +39,7 @@ jobs:
       - name: Build Directory
         run: |
           mkdir -p build
-    
+
       - name: Run Kernel Build Script
         run: |
           cd kernel
@@ -47,7 +47,7 @@ jobs:
 
       - name: List all files
         run: |
-          ls -laR build/deploy    
+          ls -laR build/deploy
 
       - name: Prepare Kernel artifacts
         run: |
@@ -56,10 +56,10 @@ jobs:
 
       - name: List all Artifacts
         run: |
-          ls -laR artifacts    
+          ls -laR artifacts
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: kernel-artifacts
-          path: ./artifacts/*  
+          path: ./artifacts/*
