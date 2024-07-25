@@ -36,6 +36,15 @@ jobs:
           cp ../*.deb  $GITHUB_WORKSPACE/assets/
           dpkg -c ../*.deb
 
+      - name: Build debian for Imx-sdma
+        run: |
+          cd firmware/imx-sdma-firmware/
+          tar -czvf imx-sdma-firmware_1.0.orig.tar.gz imx-sdma-firmware-1.0
+          cd imx-sdma-firmware-1.0
+          dpkg-buildpackage -us -uc
+          cp ../*.deb $GITHUB_WORKSPACE/assets/
+          ls -la ../
+
       - name: list all contents of assets
         run: |
           ls -la $GITHUB_WORKSPACE/assets/
