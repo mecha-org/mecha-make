@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenSSH Key Generation
+RequiresMountsFor=/var /run
+Before=ssh.service
+
+[Service]
+ExecStart=/usr/libexec/openssh/sshd_check_keys
+Type=oneshot
+RemainAfterExit=yes
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
+

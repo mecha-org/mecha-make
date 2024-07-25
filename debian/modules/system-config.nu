@@ -14,9 +14,9 @@ export def configure_sys_files [] {
   let build_conf_path = $env.BUILD_CONF_PATH
   
 
-  let script_dir_path =  (open $build_conf_path | get scripts-path)
+  let script_dir_path =  (open $build_conf_path | get include-path)
 
-  let domain_contet = '127.0.0.1       localhost.localdomain           mecha-comet-m-gen1'
+  let domain_contet = '127.0.0.1       localhost.localdomain           comet-m'
   let temp_file = "/tmp/domain-content"
 
   echo $domain_contet | save --force $temp_file
@@ -25,7 +25,7 @@ export def configure_sys_files [] {
 
   SUDO mv $temp_file $hosts_dest
 
-  let hostname_content = "mecha-comet-m-gen1"
+  let hostname_content = "comet-m"
   let temp_file = "/tmp/hostname-content"
 
   echo $hostname_content | save --force $temp_file
@@ -103,10 +103,10 @@ export def configure_ssh [] {
   let rootfs_dir = $env.ROOTFS_DIR
   let build_conf_path = $env.BUILD_CONF_PATH
 
-  let script_dir_path =  (open $build_conf_path | get scripts-path)
+  let script_dir_path =  (open $build_conf_path | get include-path)
   alias CHROOT = sudo chroot $rootfs_dir
 
-  CHROOT rm /etc/ssh/ssh_host_*
+  #CHROOT rm /etc/ssh/ssh_host_*
   CHROOT mkdir -p /usr/libexec/openssh
 
   let sshd_check_keys_src = $script_dir_path + "/sshd-key-gen/sshd_check_keys"
@@ -136,7 +136,7 @@ export def configure_udev [] {
   let rootfs_dir = $env.ROOTFS_DIR
   let build_conf_path = $env.BUILD_CONF_PATH
 
-  let script_dir_path =  (open $build_conf_path | get scripts-path)
+  let script_dir_path =  (open $build_conf_path | get include-path)
 
 
   let udev_rules_src = $script_dir_path + "/10-imx.rules"
