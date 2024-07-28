@@ -6,6 +6,7 @@ on:
       - dev*
     paths:
       - kernel/**  
+      - .github/workflows/kernel-build.yml
 
 jobs:
   build:

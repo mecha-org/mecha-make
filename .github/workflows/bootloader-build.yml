@@ -6,6 +6,7 @@ on:
       - dev*
     paths:
       - bootloader/**  
+      - .github/workflows/bootloader-build.yml
 
 jobs:
   build:
