@@ -42,8 +42,6 @@ def main [] {
     # Read the config file
     let packages = open ./package.yml | get packages 
 
-    print $"==============> Found ($packages)"
-
     # Build each package defined in the config
     $packages | each { |pkg| build_package $pkg }
 }
