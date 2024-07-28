@@ -49,7 +49,7 @@ jobs:
 
       - name: Run Docker container and collect artifacts
         run: |
-          docker run --name easysplash-container mechasystems/easy-splash-swrender:latest
+          docker run  --platform linux/arm64 --name easysplash-container mechasystems/easy-splash-swrender:latest
           docker ps -a
           docker logs easysplash-container
           docker cp easysplash-container:/artifacts ./artifacts || echo "Failed to copy artifacts"
