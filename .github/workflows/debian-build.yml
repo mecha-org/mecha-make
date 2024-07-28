@@ -4,6 +4,10 @@ on:
     branches:
       - main
       - dev*
+    paths:
+      - debain/**  
+    paths-ignore:
+      - debian/packages/**
 
 jobs:
   build:
