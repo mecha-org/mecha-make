@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+DEB_DESTDIR := debian/easysplash-swrender
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DDISPLAY_TYPE_SWRENDER=1
+
+override_dh_auto_install:
+	dh_auto_install
+	# Create sbin directory
+	mkdir -p $(DEB_DESTDIR)/sbin
+	# Move easysplash and easysplashctl to /sbin
+	mv $(CURDIR)/debian/easysplash-swrender/usr/sbin/easysplash* $(DEB_DESTDIR)/sbin/
+	# Update the service files
+	sed -i 's|/usrsbin/easysplash|/sbin/easysplash|g' $(DEB_DESTDIR)/lib/systemd/system/easysplash-start.service
+	sed -i 's|/usrsbin/easysplash|/sbin/easysplashctl|g' $(DEB_DESTDIR)/lib/systemd/system/easysplash-quit.service
