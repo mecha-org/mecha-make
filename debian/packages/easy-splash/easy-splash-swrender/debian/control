@@ -1,0 +1,12 @@
+Source: easysplash-swrender
+Maintainer: Lars Wirzenius <liw@liw.fi>
+Section: misc
+Priority: optional
+Standards-Version: 4.6.2
+Build-Depends: debhelper-compat (= 13)
+
+Package: easysplash-swrender
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: EasySplash
+ This is a simple program for animated splash screens using OpenGL ES for rendering. It consists of the main splash screen program (easysplash) and a small control program (easysplashctl).
