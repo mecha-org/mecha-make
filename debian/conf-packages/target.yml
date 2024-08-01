@@ -1,4 +1,6 @@
 packages:
+  - firmware.group
+  - linux.group
   - system.group
   - network.group
   - build.group
@@ -9,10 +11,17 @@ packages:
   - graphics.group
   - mechanix.group
 package_groups:
-  - name: linux
-    packages:
   - name: firmware
     packages:
+      - initramfs-tools
+      - imx-sdma-firmware
+      - bluez-firmware
+      - u-boot-tools
+  - name: linux
+    packages:
+      - linux-image-6.1.22+mecha
+      - linux-headers-6.1.22+mecha
+      - linux-libc-dev=6.1.22+mecha-1
   - name: system
     packages:
       - dbus
@@ -32,6 +41,8 @@ package_groups:
       - network-manager
       - net-tools
       - curl
+      - wget
+      - unzip
   - name: build
     packages:
       - python3
@@ -64,8 +75,4 @@ package_groups:
       - libasound2-plugins
   - name: mechanix
     packages:
-      - mecha-agent
-
-
-  # - linux.group
-  # - firmware.group
+      - mechanix-status-bar

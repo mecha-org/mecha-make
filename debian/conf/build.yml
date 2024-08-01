@@ -31,8 +31,8 @@ os-release:
   BUG_REPORT_URL: "https://forum.mecha.so/"
 
 #  make this as relative path
-packages-path: ./include/packages/
-scripts-path:  ./include/scripts/
-media-files : ./include/media-files
+packages-path: ./include/
+scripts-path:  ../bootloader/include/
+media-files : ./include/splash/
 firmware-files : ./include/packages/firmware
 include-path: ./include

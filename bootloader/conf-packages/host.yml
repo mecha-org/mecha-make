@@ -1,0 +1,12 @@
+packages:
+  - build-essential
+  - gcc-aarch64-linux-gnu
+  - bison
+  - flex
+  - libssl-dev
+  - libncurses-dev
+  - uuid-dev
+  - libgnutls28-dev
+  - git
+  - zlib1g-dev
+  - device-tree-compiler

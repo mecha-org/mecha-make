@@ -11,13 +11,15 @@ export def configure_networking [] {
   
     
     # Backup the existing resolv.conf, hosts
-    # cp $ROOTDIR/etc/environment $ROOTDIR/etc/environment.sav
-    CHROOT cp /etc/resolv.conf /etc/resolv.conf.sav
-    CHROOT cp /etc/hosts /etc/hosts.sav
+#    CHROOT cp $"($rootfs_dir)/etc/environment" $"($rootfs_dir)/etc/environment.sav"
+#    CHROOT cp $"($rootfs_dir)/etc/resolv.conf" $"($rootfs_dir)/etc/resolv.conf.sav"
+#    CHROOT cp $"($rootfs_dir)/etc/hosts" $"($rootfs_dir)etc/hosts.sav"
   
     # Copy hosts's resolv.conf and hosts
+    SUDO cp /etc/environment $"($rootfs_dir)/etc/environment"
     SUDO cp /etc/resolv.conf $"($rootfs_dir)/etc/resolv.conf"
     SUDO cp /etc/hosts $"($rootfs_dir)/etc/hosts"
+    
 
     log_debug "Configuring networking: done"
 }
@@ -30,7 +32,7 @@ log_info "Configuring bluetooth Service:"
 let rootfs_dir = $env.ROOTFS_DIR
 let build_conf_path = $env.BUILD_CONF_PATH
 
-let script_dir_path =  (open $build_conf_path | get scripts-path)
+let script_dir_path =  (open $build_conf_path | get include-path)
 alias CHROOT = sudo chroot $rootfs_dir
 
 let bluetooth_hci_enable_service_src = $script_dir_path + "/bluetooth-hci-enable.service"
