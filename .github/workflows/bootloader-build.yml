@@ -17,8 +17,8 @@ jobs:
 
       - name: Install basic dependencies
         run: |
-           apt-get update
-           apt-get install -y curl wget sudo
+           sudo apt-get update
+           sudo apt-get install -y curl wget
 
       - name: Install Nushell
         run: |
@@ -71,4 +71,4 @@ jobs:
         with:
           name: bootloader-artifacts
           path: ./artifacts/*
-          
+
