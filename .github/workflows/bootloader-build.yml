@@ -71,3 +71,4 @@ jobs:
         with:
           name: bootloader-artifacts
           path: ./artifacts/*
+          
