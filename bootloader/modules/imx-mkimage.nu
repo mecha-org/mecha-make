@@ -13,9 +13,22 @@ export def build_imx_mkimage [work_dir:string] {
 
     mkdir $mkimage_dir
 
-    let manifest =  $env.MANIFEST_DIR
-    let imx_mkimage_repo = open $manifest | get imx-mkimage | get url
-    let imx_mkimage_commit = open $manifest | get imx-mkimage | get commit-id
+    let manifest = $env.MANIFEST_DIR
+    let imx_mkimage_repo = try {
+        open $manifest | get deps | get imx-mkimage | get url
+    } catch {
+        log_error $"Failed to parse manifest file: ($manifest)"
+        log_error $"($env.LAST_ERROR)"
+        exit 1
+    }
+
+    let imx_mkimage_commit = try {
+        open $manifest | get deps | get imx-mkimage | get commit-id
+    } catch {
+        log_error $"Failed to get commit-id from manifest file: ($manifest)"
+        log_error $"($env.LAST_ERROR)"
+        exit 1
+    }
 
     log_debug $"Fetching IMX MKIMAGE source code from ($imx_mkimage_repo) to ($mkimage_dir)"
 

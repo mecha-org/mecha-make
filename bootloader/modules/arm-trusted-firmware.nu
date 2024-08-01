@@ -8,23 +8,42 @@ export def build_imx_trusted_firmware [work_dir:string] {
     let imx_atf_dir = ($work_dir + "/imx-atf") | path expand
     mkdir $imx_atf_dir
 
-    let manifest =  $env.MANIFEST_DIR
-    let IMX_ATF_REPO = open $manifest | get imx-atf | get url
+    let manifest = $env.MANIFEST_DIR
+    let imx_atf_repo = try {
+        open $manifest | get deps | get imx-atf | get url
+    } catch {
+        log_error $"Failed to parse manifest file: ($manifest)"
+        log_error $"($env.LAST_ERROR)"
+        exit 1
+    }
 
-    let patch_path =   (open $manifest  | get patch-path)
-    let patch_path = $patch_path | path expand
+    let commit_id = try {
+        open $manifest | get deps | get imx-atf | get commit-id
+    } catch {
+        log_error $"Failed to get commit-id from manifest file: ($manifest)"
+        log_error $"($env.LAST_ERROR)"
+        exit 1
+    }
 
-    log_debug $"Fetching IMX Trusted Firmware source code from ($IMX_ATF_REPO) to ($imx_atf_dir)"
+    let patch_file = try {
+        open $manifest | get patches | get power-off
+    } catch {
+        log_error $"Failed to get patch file path from manifest file: ($manifest)"
+        log_error $"($env.LAST_ERROR)"
+        exit 1
+    }
 
-#    curl -L $IMX_ATF_REPO | tar -xz -C $imx_atf_dir --strip-components=1
+    let patch_path = $patch_file | path expand
 
-    git clone $IMX_ATF_REPO $imx_atf_dir
+    log_debug $"Fetching IMX Trusted Firmware source code from ($imx_atf_repo) to ($imx_atf_dir)"
+
+    git clone $imx_atf_repo $imx_atf_dir
 
     cd $imx_atf_dir
 
-    git checkout 99195a23d3aef485fb8f10939583b1bdef18881c
+    git checkout $commit_id
 
-    git apply $"($patch_path)/0001-resolve-poweroff-issue.patch"
+    git apply $patch_path
 
     make PLAT=imx8mm bl31
 
