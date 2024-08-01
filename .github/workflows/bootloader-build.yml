@@ -15,29 +15,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install basic dependencies
         run: |
-          sudo apt-get update && \
-          sudo apt-get install -y \
-          curl \
-          wget \
-          build-essential \
-          gcc-aarch64-linux-gnu \
-          bison \
-          flex \
-          libssl-dev \
-          libncurses-dev \
-          uuid-dev \
-          libgnutls28-dev \
-          git \
-          zlib1g-dev \
-          device-tree-compiler
+           apt-get update
+           apt-get install -y curl wget sudo
 
       - name: Install Nushell
         run: |
-            curl -L https://github.com/nushell/nushell/releases/download/0.95.0/nu-0.95.0-aarch64-unknown-linux-gnu.tar.gz | tar xz
-            sudo mv nu-0.95.0-aarch64-unknown-linux-gnu/nu /usr/local/bin/
-            rm -rf nu-0.95.0-aarch64-unknown-linux-gnu
+          ARCH=$(uname -m) && \
+          case ${ARCH} in \
+          x86_64) NUSHELL_ARCH="x86_64-unknown-linux-gnu" ;; \
+          aarch64) NUSHELL_ARCH="aarch64-unknown-linux-gnu" ;; \
+          armv7l) NUSHELL_ARCH="armv7-unknown-linux-gnueabihf" ;; \
+          *) echo "Unsupported architecture: ${ARCH}" && exit 1 ;; \
+          esac && \
+          wget https://github.com/nushell/nushell/releases/download/0.96.0/nu-0.96.0-${NUSHELL_ARCH}.tar.gz && \
+          tar -xzvf nu-0.96.0-${NUSHELL_ARCH}.tar.gz && \
+          sudo mv nu-0.96.0-${NUSHELL_ARCH}/nu /usr/local/bin/ && \
+          rm -rf nu-0.96.0-${NUSHELL_ARCH}.tar.gz nu-0.96.0-${NUSHELL_ARCH}
+
+      - name: Read and Install Additional Dependencies
+        run: |
+          PACKAGES=$(nu -c "open bootloader/conf-packages/host.yml | get packages | str join ' '")
+          sudo apt-get install -y $PACKAGES   
+
 
       - name: Build Directory
         run: |
@@ -46,7 +47,7 @@ jobs:
       - name: Run Bootloader Build Script
         run: |
           cd bootloader
-          nu build-bootloader.nu   mecha-comet-m-gen1 ../build
+          nu build-bootloader.nu mecha-comet-gen1 ../build
 
       - name: List all files
         run: |
@@ -54,8 +55,12 @@ jobs:
 
       - name: Prepare bootloader artifacts
         run: |
-          mkdir artifacts
-          cp -r ./build/deploy/* ./artifacts
+            mkdir artifacts
+            VERSION=$(nu -c "open bootloader/machines/mecha-comet-gen1.yml | get version")
+            for file in build/deploy/u-boot/*; do
+              base=$(basename "$file")
+              mv "$file" "artifacts/${base%.bin}-v${VERSION}.bin"
+            done
 
       - name: List all Artifacts
         run: |
