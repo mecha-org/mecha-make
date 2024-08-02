@@ -6,7 +6,7 @@ COPY ../uboot /uboot/
 COPY ../machine /machine/
 
 # Set the working directory inside the container
-WORKDIR /bootloader
+WORKDIR /uboot
 
 # Install dependencies and update the package list
 RUN apt-get update && \
