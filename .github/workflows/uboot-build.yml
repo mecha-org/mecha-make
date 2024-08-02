@@ -6,7 +6,7 @@ on:
       - dev*
     paths:
       - uboot/**
-      - .github/workflows/bootloader-build.yml
+      - .github/workflows/uboot-build.yml
 
 jobs:
   build:
@@ -43,16 +43,16 @@ jobs:
         run: |
           mkdir -p build
 
-      - name: Run Bootloader Build Script
+      - name: Run Uboot Build Script
         run: |
-          cd bootloader
+          cd uboot
           nu build.nu mecha-comet-gen1 ../build
 
       - name: List all files
         run: |
           ls -laR build/deploy
 
-      - name: Prepare bootloader artifacts
+      - name: Prepare Uboot artifacts
         run: |
           mkdir artifacts
           VERSION=$(nu -c "open uboot/machines/mecha-comet-gen1.yml | get version")
