@@ -47,7 +47,7 @@ jobs:
       - name: Run Bootloader Build Script
         run: |
           cd bootloader
-          nu build-bootloader.nu mecha-comet-gen1 ../build
+          nu build.nu mecha-comet-gen1 ../build
 
       - name: List all files
         run: |

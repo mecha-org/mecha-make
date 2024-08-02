@@ -48,7 +48,7 @@ RUN curl -L https://github.com/nushell/nushell/releases/download/0.95.0/nu-0.95.
 #make build directory
 RUN mkdir ../build
 
-#this is the command to run when the container starts nu build-bootloader.nu mecha-comet-m-gen1 ../build 
+#this is the command to run when the container starts nu build.nu mecha-comet-m-gen1 ../build 
 
 CMD ["nu", "build-debian.nu", "mecha-comet-m-gen1", "../build"]
 

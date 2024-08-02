@@ -7,7 +7,7 @@ on:
     paths:
       - debain/**  
     paths-ignore:
-      - debian/packages/**
+      - */packages/**
       - .github/workflows/debian-build.yml
 
 jobs:
