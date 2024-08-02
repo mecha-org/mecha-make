@@ -1,11 +1,11 @@
-name: Bootloader Build
+name: Uboot-build
 on:
   push:
     branches:
       - main
       - dev*
     paths:
-      - bootloader/**  
+      - bootloader/**
       - .github/workflows/bootloader-build.yml
 
 jobs:
@@ -17,8 +17,8 @@ jobs:
 
       - name: Install basic dependencies
         run: |
-           sudo apt-get update
-           sudo apt-get install -y curl wget
+          sudo apt-get update
+          sudo apt-get install -y curl wget
 
       - name: Install Nushell
         run: |
@@ -37,8 +37,7 @@ jobs:
       - name: Read and Install Additional Dependencies
         run: |
           PACKAGES=$(nu -c "open bootloader/conf-packages/host.yml | get packages | str join ' '")
-          sudo apt-get install -y $PACKAGES   
-
+          sudo apt-get install -y $PACKAGES
 
       - name: Build Directory
         run: |
@@ -55,16 +54,16 @@ jobs:
 
       - name: Prepare bootloader artifacts
         run: |
-            mkdir artifacts
-            VERSION=$(nu -c "open bootloader/machines/mecha-comet-gen1.yml | get version")
-            for file in build/deploy/u-boot/*; do
-              base=$(basename "$file")
-              mv "$file" "artifacts/${base%.bin}-v${VERSION}.bin"
-            done
+          mkdir artifacts
+          VERSION=$(nu -c "open bootloader/machines/mecha-comet-gen1.yml | get version")
+          for file in build/deploy/u-boot/*; do
+            base=$(basename "$file")
+            mv "$file" "artifacts/${base%.bin}-v${VERSION}.bin"
+          done
 
       - name: List all Artifacts
         run: |
-          ls -laR artifacts  
+          ls -laR artifacts
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -72,3 +71,22 @@ jobs:
           name: bootloader-artifacts
           path: ./artifacts/*
 
+      - name: Create Tag
+        id: create_tag
+        run: |
+          VERSION=$(nu -c "open bootloader/machines/mecha-comet-gen1.yml | get version")
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag -a "v${VERSION}" -m "Release version ${VERSION}"
+          git push origin "v${VERSION}"
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.prepare_artifacts.outputs.version }}
+          name: Release v${{ steps.prepare_artifacts.outputs.version }}
+          body: "Automatic release of version ${{ steps.prepare_artifacts.outputs.version }}"
+          files: |
+            artifacts/*
+          env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
