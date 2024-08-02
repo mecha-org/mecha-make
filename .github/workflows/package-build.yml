@@ -1,4 +1,4 @@
-name: Build easysplash
+name: Packages Build
 
 on:
   push:
@@ -6,9 +6,8 @@ on:
       - main
       - dev*
     paths:
-    - debian/**
-    - .github/workflows/package-build.yml
-
+      - packages/**
+      - .github/workflows/packages-build.yml
 
 jobs:
   build:
@@ -22,46 +21,49 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3 
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Debug - List contents of debian directory
         run: |
-          ls -R debian/packages/easy-splash/easy-splash-swrender/debian
+          ls -R packages
 
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./debian/packages/easy-splash/easy-splash-swrender/Dockerfile
+          file: Dockerfile
           platforms: linux/arm64
           push: false
           load: true
-          tags: mechasystems/easy-splash-swrender:latest
+          tags: mechasystems/packages:latest
 
       - name: Debug - List Docker images
         run: docker images
 
       - name: Debug - Show Docker image details
-        run: docker inspect mechasystems/easy-splash-swrender:latest
+        run: docker inspect mechasystems/packages:latest
 
       - name: Remove existing container if it exists
         run: |
-          docker rm -f easysplash-container || true
+          docker rm -f packages-container || true
+
+      - name: Make artifacts directory
+        run: mkdir -p artifacts
 
       - name: Run Docker container and collect artifacts
         run: |
-          docker run  --platform linux/arm64 --name easysplash-container mechasystems/easy-splash-swrender:latest
+          docker run --platform linux/arm64 --name packages-container mechasystems/packages:latest
           docker ps -a
-          docker logs easysplash-container
-          docker cp easysplash-container:/artifacts ./artifacts || echo "Failed to copy artifacts"
+          docker logs packages-container
+          docker cp packages-container:/artifacts ./artifacts || echo "Failed to copy artifacts"
 
       - name: Debug - List container filesystem
         if: failure()
         run: |
-          docker exec easysplash-container ls -R /
+          docker exec packages-container ls -R /
 
       - name: list artifacts
         run: |
@@ -70,11 +72,11 @@ jobs:
       - name: Clean up
         if: always()
         run: |
-          docker stop easysplash-container || true
-          docker rm easysplash-container || true
+          docker stop packages-container || true
+          docker rm packages-container || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: easysplash-swrender-artifacts
-          path: ./artifacts/*    
+          name: packages
+          path: ./artifacts/*
