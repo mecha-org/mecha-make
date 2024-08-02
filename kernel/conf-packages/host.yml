@@ -13,3 +13,4 @@ packages:
   - autoconf
   - bc
   - git
+  - build-essential

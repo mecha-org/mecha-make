@@ -46,7 +46,7 @@ jobs:
       - name: Run Kernel Build Script
         run: |
           cd kernel
-          nu build-kernel.nu  ../build
+          nu build-kernel.nu mecha-comet-gen1 ../build
 
       - name: List all files
         run: |
