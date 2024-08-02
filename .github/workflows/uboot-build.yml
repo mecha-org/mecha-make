@@ -80,13 +80,13 @@ jobs:
           git tag -a "v${VERSION}" -m "Release version ${VERSION}"
           git push origin "v${VERSION}"
 
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.prepare_artifacts.outputs.version }}
-          name: Release v${{ steps.prepare_artifacts.outputs.version }}
-          body: "Automatic release of version ${{ steps.prepare_artifacts.outputs.version }}"
-          files: |
-            artifacts/*
-          env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Release
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     tag_name: v${{ steps.prepare_artifacts.outputs.version }}
+      #     name: Release v${{ steps.prepare_artifacts.outputs.version }}
+      #     body: "Automatic release of version ${{ steps.prepare_artifacts.outputs.version }}"
+      #     files: |
+      #       artifacts/*
+      #     env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
