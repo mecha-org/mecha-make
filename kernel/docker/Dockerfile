@@ -47,4 +47,4 @@ RUN curl -L https://github.com/nushell/nushell/releases/download/0.95.0/nu-0.95.
 RUN mkdir ../build-kernel 
 
 # Specify the command to run when the container starts
-CMD ["nu", "build-kernel.nu", "../build"]
+CMD ["nu", "build-kernel.nu", "mecha-comet-gen1", "../build"]
