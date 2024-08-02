@@ -5,7 +5,7 @@ on:
       - main
       - dev*
     paths:
-      - bootloader/**
+      - uboot/**
       - .github/workflows/bootloader-build.yml
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
 
       - name: Read and Install Additional Dependencies
         run: |
-          PACKAGES=$(nu -c "open bootloader/conf-packages/host.yml | get packages | str join ' '")
+          PACKAGES=$(nu -c "open uboot/conf-packages/host.yml | get packages | str join ' '")
           sudo apt-get install -y $PACKAGES
 
       - name: Build Directory
@@ -55,7 +55,7 @@ jobs:
       - name: Prepare bootloader artifacts
         run: |
           mkdir artifacts
-          VERSION=$(nu -c "open bootloader/machines/mecha-comet-gen1.yml | get version")
+          VERSION=$(nu -c "open uboot/machines/mecha-comet-gen1.yml | get version")
           for file in build/deploy/u-boot/*; do
             base=$(basename "$file")
             mv "$file" "artifacts/${base%.bin}-v${VERSION}.bin"
@@ -74,7 +74,7 @@ jobs:
       - name: Create Tag
         id: create_tag
         run: |
-          VERSION=$(nu -c "open bootloader/machines/mecha-comet-gen1.yml | get version")
+          VERSION=$(nu -c "open uboot/machines/mecha-comet-gen1.yml | get version")
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git tag -a "v${VERSION}" -m "Release version ${VERSION}"
