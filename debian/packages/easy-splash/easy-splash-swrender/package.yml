@@ -1,5 +1,0 @@
-packages:
-  - name: "easysplash-swrender"
-    git_url: "https://github.com/texierp/easysplash"
-    branch: "master"
-    version: "1.0"
