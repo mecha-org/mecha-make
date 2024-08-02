@@ -6,7 +6,7 @@ on:
       - main
       - dev*
     paths:
-      - packages/**
+      - debian/packages/**
       - .github/workflows/packages-build.yml
 
 jobs:
