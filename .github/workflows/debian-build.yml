@@ -35,7 +35,6 @@ jobs:
         with:
           context: .
           file: debian/distro.Dockerfile
-          platforms: linux/arm64
           push: false
           load: true
           tags: mechasystems/packages:latest
@@ -55,10 +54,10 @@ jobs:
 
       - name: Run Docker container and collect artifacts
         run: |
-          docker run --platform linux/arm64 --name distro-container mechasystems/distro:latest
+          docker run --name distro-container mechasystems/distro:latest
           docker ps -a
           docker logs distro-container
-          docker cp packages-container:/artifacts /build/assets/deploy/*.tar.gz || echo "Failed to copy artifacts"
+          docker cp packages-container:/build/assets/deploy/*.tar.gz /artifacts || echo "Failed to copy artifacts"
 
       - name: Debug - List container filesystem
         if: failure()
