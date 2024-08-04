@@ -57,7 +57,7 @@ jobs:
           docker run --name distro-container mechasystems/distro:latest
           docker ps -a
           docker logs distro-container
-          docker cp distro-container:/build/assets/deploy/*.tar.gz /artifacts || echo "Failed to copy artifacts"
+          docker cp distro-container:/build/assets/deploy/debian-image-rootfs.tar.gz ./artifacts || echo "Failed to copy artifacts"
 
       - name: Debug - List container filesystem
         if: failure()
