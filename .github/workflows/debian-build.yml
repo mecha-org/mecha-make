@@ -1,60 +1,83 @@
-name: debian build
+name: Debian Build
+
 on:
   push:
     branches:
       - main
       - dev*
     paths:
-      - debain/**  
+      - debian/distro/**
       - .github/workflows/debian-build.yml
-
 
 jobs:
   build:
-    runs-on: ubicloud-standard-2-arm
+    runs-on: ubuntu-22.04
+
+    env:
+      DEBEMAIL: "dhruveshb@mechasystems.com"
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update -y && \
-          sudo apt-get install -y \
-          wget \
-          build-essential \
-          dpkg-dev \
-          debhelper \
-          devscripts \
-          git \
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: Create assets directory
-        run: |
-          mkdir -p assets
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build debian for bluetooth
+      - name: Debug - List contents of debian directory
         run: |
-          cd firmware/bluez/
-          tar -czvf bluez-firmware_1.0.orig.tar.gz bluez-firmware-1.0
-          cd bluez-firmware-1.0
-          dpkg-buildpackage -us -uc
-          cp ../*.deb  $GITHUB_WORKSPACE/assets/
-          dpkg -c ../*.deb
+          ls -R debian/packages
 
-      - name: Build debian for Imx-sdma
-        run: |
-          cd firmware/imx-sdma-firmware/
-          tar -czvf imx-sdma-firmware_1.0.orig.tar.gz imx-sdma-firmware-1.0
-          cd imx-sdma-firmware-1.0
-          dpkg-buildpackage -us -uc
-          cp ../*.deb $GITHUB_WORKSPACE/assets/
-          ls -la ../
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: debian/distro.Dockerfile
+          platforms: linux/arm64
+          push: false
+          load: true
+          tags: mechasystems/packages:latest
 
-      - name: list all contents of assets
+      - name: Debug - List Docker images
+        run: docker images
+
+      - name: Debug - Show Docker image details
+        run: docker inspect mechasystems/distro:latest
+
+      - name: Remove existing container if it exists
         run: |
-          ls -la $GITHUB_WORKSPACE/assets/
+          docker rm -f distro-container || true
+
+      - name: Make artifacts directory
+        run: mkdir -p artifacts
+
+      - name: Run Docker container and collect artifacts
+        run: |
+          docker run --platform linux/arm64 --name distro-container mechasystems/distro:latest
+          docker ps -a
+          docker logs distro-container
+          docker cp packages-container:/artifacts /build/assets/deploy/*.tar.gz || echo "Failed to copy artifacts"
+
+      - name: Debug - List container filesystem
+        if: failure()
+        run: |
+          docker exec packages-container ls -R /
+
+      - name: list artifacts
+        run: |
+          ls -R ./artifacts || echo "No artifacts found"
+
+      - name: Clean up
+        if: always()
+        run: |
+          docker stop packages-container || true
+          docker rm packages-container || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: debian-artifacts
-          path: ./assets/*
+          name: packages
+          path: ./artifacts/*
+

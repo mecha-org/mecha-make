@@ -39,7 +39,7 @@ keyboard-config:
 
 #  make this as relative path
 packages-path: ./include/
-scripts-path:  ../uboot/include
+scripts-path:  ./../../uboot/include
 media-files : ./include/splash/
 firmware-files : ./include/packages/firmware
 include-path: ./include

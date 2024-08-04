@@ -1,0 +1,60 @@
+name: debian build
+on:
+  push:
+    branches:
+      - main
+      - dev*
+    paths:
+      - debain/packages/**  
+      - .github/workflows/firmware-build.yml
+
+
+jobs:
+  build:
+    runs-on: ubicloud-standard-2-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y && \
+          sudo apt-get install -y \
+          wget \
+          build-essential \
+          dpkg-dev \
+          debhelper \
+          devscripts \
+          git \
+
+      - name: Create assets directory
+        run: |
+          mkdir -p assets
+
+      - name: Build debian for bluetooth
+        run: |
+          cd firmware/bluez/
+          tar -czvf bluez-firmware_1.0.orig.tar.gz bluez-firmware-1.0
+          cd bluez-firmware-1.0
+          dpkg-buildpackage -us -uc
+          cp ../*.deb  $GITHUB_WORKSPACE/assets/
+          dpkg -c ../*.deb
+
+      - name: Build debian for Imx-sdma
+        run: |
+          cd firmware/imx-sdma-firmware/
+          tar -czvf imx-sdma-firmware_1.0.orig.tar.gz imx-sdma-firmware-1.0
+          cd imx-sdma-firmware-1.0
+          dpkg-buildpackage -us -uc
+          cp ../*.deb $GITHUB_WORKSPACE/assets/
+          ls -la ../
+
+      - name: list all contents of assets
+        run: |
+          ls -la $GITHUB_WORKSPACE/assets/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-artifacts
+          path: ./assets/*
