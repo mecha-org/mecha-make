@@ -37,7 +37,7 @@ jobs:
           file: debian/distro.Dockerfile
           push: false
           load: true
-          tags: mechasystems/packages:latest
+          tags: mechasystems/distro:latest
 
       - name: Debug - List Docker images
         run: docker images
@@ -57,12 +57,12 @@ jobs:
           docker run --name distro-container mechasystems/distro:latest
           docker ps -a
           docker logs distro-container
-          docker cp packages-container:/build/assets/deploy/*.tar.gz /artifacts || echo "Failed to copy artifacts"
+          docker cp distro-container:/build/assets/deploy/*.tar.gz /artifacts || echo "Failed to copy artifacts"
 
       - name: Debug - List container filesystem
         if: failure()
         run: |
-          docker exec packages-container ls -R /
+          docker exec distro-container ls -R /
 
       - name: list artifacts
         run: |
@@ -71,8 +71,8 @@ jobs:
       - name: Clean up
         if: always()
         run: |
-          docker stop packages-container || true
-          docker rm packages-container || true
+          docker stop distro-container || true
+          docker rm distro-container || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
