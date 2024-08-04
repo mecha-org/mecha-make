@@ -30,6 +30,13 @@ os-release:
   SUPPORT_URL: "https://forum.mecha.so/"
   BUG_REPORT_URL: "https://forum.mecha.so/"
 
+keyboard-config:
+  layout : "us"
+  model : "pc1067"
+  variant : ""
+  options : ""
+  toggle : "No toggling"
+
 #  make this as relative path
 packages-path: ./include/
 scripts-path:  ../uboot/include
