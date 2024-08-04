@@ -1,5 +1,6 @@
 #!/usr/bin/env nu
 use logger.nu
+use os-config.nu *
 
 const HOST_INSTALLATION_CONF = "conf-packages/host.yml"
 const TARGET_INSTALLATION_CONF = "conf-packages/target.yml"
@@ -47,6 +48,9 @@ export def install_target_packages [] {
     # clean up and update
     CHROOT apt-get clean
     CHROOT apt-get update
+
+    # Configure keyboard layout
+    keyboard_config
 
 
     let package_groups = open $TARGET_INSTALLATION_CONF | get package_groups

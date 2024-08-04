@@ -84,3 +84,31 @@ export def disable_diaply_service [] {
     }
 
 }
+
+export def keyboard_config [] {
+    log_info "Configuring keyboard layout:"
+    let rootfs_dir = $env.ROOTFS_DIR
+    let build_conf_path = $env.BUILD_CONF_PATH
+
+    let keyboard_layout = open $build_conf_path | get keyboard-config
+
+    # Preset keyboard configuration options
+    let keyboard_preset = $"
+    keyboard-configuration keyboard-configuration/layoutcode string ($keyboard_layout.layout)
+    keyboard-configuration keyboard-configuration/modelcode string ($keyboard_layout.model)
+    keyboard-configuration keyboard-configuration/variantcode string ($keyboard_layout.variant)
+    keyboard-configuration keyboard-configuration/optionscode string ($keyboard_layout.options)
+    keyboard-configuration keyboard-configuration/toggle select ($keyboard_layout.toggle)
+    "
+
+    # Use chroot to set debconf selections
+    echo $keyboard_preset | sudo chroot $rootfs_dir debconf-set-selections
+
+    # Set DEBIAN_FRONTEND to noninteractive
+    sudo chroot $rootfs_dir bash -c "export DEBIAN_FRONTEND=noninteractive && apt-get install -y keyboard-configuration"
+
+    # Reconfigure keyboard-configuration to apply changes
+    sudo chroot $rootfs_dir bash -c "dpkg-reconfigure -f noninteractive keyboard-configuration"
+    log_info "Keyboard layout configured successfully."
+
+}
