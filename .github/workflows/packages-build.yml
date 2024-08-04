@@ -28,7 +28,7 @@ jobs:
 
       - name: Debug - List contents of debian directory
         run: |
-          ls -R packages
+          ls -R debian/packages
 
       - name: Build Docker image
         uses: docker/build-push-action@v5
@@ -80,3 +80,4 @@ jobs:
         with:
           name: packages
           path: ./artifacts/*
+

@@ -43,7 +43,8 @@ export def boot_script [] {
 
   alias CHROOT = sudo chroot $rootfs_dir
   alias SUDO = sudo
-  let script_dir_path =  (open $build_conf_path | get scripts-path)
+  let script_dir_path =  (open $build_conf_path | get scripts-path) | path expand
+ 
   logger log_debug $"Script Directory Path: ($script_dir_path)"
 
 
