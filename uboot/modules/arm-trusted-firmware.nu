@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 
 use logger.nu
-use fetch-source.nu
+use fetch-source.nu *
 
 export def build_imx_trusted_firmware [work_dir:string] {
     log_info "Building IMX Trusted Firmware"
@@ -10,7 +10,7 @@ export def build_imx_trusted_firmware [work_dir:string] {
 
     let manifest = $env.MANIFEST_DIR
     let imx_atf_repo = try {
-        open $manifest | get deps | get imx-atf | get url
+        open $manifest | get deps | get imx-atf | get src
     } catch {
         log_error $"Failed to parse manifest file: ($manifest)"
         log_error $"($env.LAST_ERROR)"
@@ -18,9 +18,9 @@ export def build_imx_trusted_firmware [work_dir:string] {
     }
 
     let commit_id = try {
-        open $manifest | get deps | get imx-atf | get commit-id
+        open $manifest | get deps | get imx-atf | get rev
     } catch {
-        log_error $"Failed to get commit-id from manifest file: ($manifest)"
+        log_error $"Failed to get rev from manifest file: ($manifest)"
         log_error $"($env.LAST_ERROR)"
         exit 1
     }
@@ -37,11 +37,9 @@ export def build_imx_trusted_firmware [work_dir:string] {
 
     log_debug $"Fetching IMX Trusted Firmware source code from ($imx_atf_repo) to ($imx_atf_dir)"
 
-    git clone $imx_atf_repo $imx_atf_dir
+    source_download $imx_atf_repo $imx_atf_dir $commit_id
 
-    cd $imx_atf_dir
-
-    git checkout $commit_id
+    cd  $imx_atf_dir
 
     git apply $patch_path
 
