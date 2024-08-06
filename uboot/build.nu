@@ -7,9 +7,9 @@ use modules/download-imx-firmware.nu *
 use modules/arm-trusted-firmware.nu *
 use modules/imx-mkimage.nu * 
 
-# Global variables
 const ARCH = "arm64"
 const CROSS_COMPILE = "/usr/bin/aarch64-linux-gnu-"
+
 
 # Entry point
 def main [machine: string,build_dir:string] {
@@ -73,10 +73,13 @@ def copy_files [] {
     log_debug $"U-Boot directory: ($uboot_dir)"
     log_debug $"Work directory: ($work_dir)"
 
+    let conf = open $env.MANIFEST_DIR 
+    let platform = $conf.flags.platform
+
     let mkimage_dir = ($work_dir | path join "imx-mkimage" "iMX8M")
     cp ($uboot_dir | path join "spl" "u-boot-spl.bin") $mkimage_dir
     cp ($uboot_dir | path join "u-boot-nodtb.bin") $mkimage_dir
-    cp ($uboot_dir | path join "arch" "arm" "dts" "mecha-comet.dtb") $mkimage_dir
+    cp ($uboot_dir | path join "arch" "arm" "dts" $"($platform).dtb") $mkimage_dir
     cp ($uboot_dir | path join "tools" "mkimage") ($mkimage_dir | path join "mkimage_uboot")
     cp ($work_dir | path join "imx-atf" "build" "imx8mm" "release" "bl31.bin") $mkimage_dir
 
@@ -86,7 +89,7 @@ def copy_files [] {
     let pattern = ($synopsys_dir | path join "lpddr4_pmu_train_*")
     glob $pattern | each { |file| cp $file $mkimage_dir }
 
-    cp ($mkimage_dir | path join "mecha-comet.dtb") ($mkimage_dir | path join "mecha-comet-evk.dtb")
+    cp ($mkimage_dir | path join "mecha-comet.dtb") ($mkimage_dir | path join $"($platform)-evk.dtb")
 }
 
 
@@ -95,7 +98,11 @@ def build_image [] {
     let work_dir = $env.WORK_DIR
     log_debug $"Work directory: ($work_dir)"
     cd ($work_dir | path join "imx-mkimage" )
-    make SOC=iMX8MM PLAT=mecha-comet flash_evk
+
+    let conf = open $env.MANIFEST_DIR 
+    let platform = $conf.flags.platform
+
+    make SOC=iMX8MM PLAT=($platform) flash_evk
     log_info "Image build completed successfully"
 }
 

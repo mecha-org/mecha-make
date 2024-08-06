@@ -3,6 +3,7 @@ rev: "1.0" # commit id or tag
 version: "1.0"
 flags: 
   defconfig: "mecha_cometm_gen1_defconfig"
+  platform: "mecha-comet"
 
 deps:
   imx-atf:
