@@ -5,6 +5,7 @@
 # fdt_file=imx8mm-mecha-comet-m-gen1.dtb
 
 # Uboot script
+# TODO : Remove hardcoded kernel version 
 setenv fk_kvers '6.1.22+mecha'
 setenv bootargs ${bootargs} console=${console} root=${rootfs_part}
 
