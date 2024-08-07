@@ -45,15 +45,15 @@ WORKDIR /build
 RUN mkdir -p deps/wayland deps/wayland-protocols deps/dpkg-dev deps/libliftoff deps/libdisplay-info deps/wlroots deps/labwc
 
 # Copy the compositor directory
-COPY debian/packages /build/packages
+COPY debian/packages/ /build/packages
 
 # Log the files in the /build directory
 RUN echo "Logging the files in the /build directory" && ls -la /build
 
 # Build and install Wayland and other packages using Nushell script
-RUN echo "Building packages" && \
-    cd /build/packages && \
-    nu packages-build.nu
+# RUN echo "Building packages" && \
+#     cd /build/packages/target && \
+#     nu packages-build.nu
 
 # Set the default command to bash
 CMD ["/bin/bash"]
