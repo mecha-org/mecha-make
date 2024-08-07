@@ -34,7 +34,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: debian/package.Dockerfile
+          file: debian/package/Dockerfile
           platforms: linux/arm64
           push: false
           load: true
