@@ -1,0 +1,6 @@
+packages:
+  - name: "easysplash-swrender"
+    version: "1.0"
+    url: "https://github.com/texierp/easysplash/archive/refs/heads/master.tar.gz"
+    build_type: custom  
+    package_config_dir: debian
