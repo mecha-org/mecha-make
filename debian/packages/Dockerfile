@@ -52,7 +52,7 @@ RUN echo "Logging the files in the /build directory" && ls -la /build
 
 # Build and install Wayland and other packages using Nushell script
 RUN echo "Building packages" && \
-    cd /build/packages/target && \
+    cd /build/packages && \
     nu packages-build.nu
 
 # Set the default command to bash
