@@ -1,5 +1,7 @@
 #!/usr/bin/env nu
 
+use ../../modules/logger.nu *
+
 def main [] {
 
     let conf = read_yml "./config.yml"
@@ -11,7 +13,7 @@ def main [] {
 
     let path = $"./($package_name)" | path expand
 
-    print $"Package name: ($package_name)"
+    log_debug $"Package name: ($package_name)"
 
     let archive_name = $"($package)_($version).orig.tar.gz"
     # Archive the source
@@ -29,18 +31,20 @@ def main [] {
 
 
 def archive_source [archive_name: string, source_dir: string] {
-    print $"Archiving source: ($archive_name)"
+    log_debug $"Archiving source: ($archive_name)"
     tar -czvf $archive_name $source_dir
+    
 }
 
 def read_yml [file: string] {
-    print "Reading configuration file..."
+    log_debug "Reading configuration file..."
     open $file;
 }
 
 def build_deb_package [package_name: string] {
-    echo $"Building debian package for ($package_name)"
+    log_debug $"Building debian package for ($package_name)"
     cd $package_name
     run-external debuild "-us" "-uc"
+    log_info $"Package ($package_name) built successfully"
     cd ..
 }
