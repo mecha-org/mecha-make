@@ -30,7 +30,7 @@ def build_standard_package [package] {
     # List the files in the directory
     if (ls -la | length) > 0 {
         log_debug "***********Listing files in the directory*********"
-        log (ls -la)
+        log_debug $"(ls -la)"
     } else {
         log_warn "No files found in the directory."
     }
