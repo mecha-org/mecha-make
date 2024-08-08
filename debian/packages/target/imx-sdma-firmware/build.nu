@@ -1,6 +1,8 @@
 #!/usr/bin/env nu
 
 use ../../modules/logger.nu *
+use ../../modules/publish_package.nu *
+use ../../modules/collect-package.nu *
 
 def main [] {
 
@@ -20,6 +22,16 @@ def main [] {
     # Build the debian package
     build_deb_package $package_name
 
+    # Copy .deb files to assets directory
+    collect_artifacts $package.name (pwd)
+    
+    let aptly_server_endpoint = "http://18.227.102.140"
+    let deb_repo_name = "mechanix-deb-alpha"
+    let deb_repo_distro = "apollo"
+    let s3_publish_endpoint = "debian.mecha.build"
+
+    # Publish the package
+    publish_packages $package.name (pwd) $aptly_server_endpoint $deb_repo_name $deb_repo_distro $s3_publish_endpoint
 
 }
 

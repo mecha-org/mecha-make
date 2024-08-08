@@ -3,6 +3,7 @@
 use ../../modules/install-packages.nu *
 use ../../modules/collect-package.nu *
 use ../../modules/logger.nu *
+use ../../modules/publish_package.nu *
 
 def read_config [] {
     open config.yml
@@ -68,6 +69,20 @@ def build_custom_package [package] {
 
     # Copy .deb files to assets directory
     collect_artifacts $package.name (pwd)
+
+
+    # MECHANIX_APTLY_SERVER_ENDPOINT=http://18.227.102.140
+    # MECHANIX_APTLY_DEB_REPOSITORY_NAME=mechanix-unstable # can be mechanix-stable
+    # MECHANIX_APTLY_DEB_REPOSITORY_DISTRO=apollo
+    # MECHANIX_APTLY_S3_PUBLISH_ENDPOINT=public-us-east-2
+
+    let aptly_server_endpoint = "http://18.227.102.140"
+    let deb_repo_name = "mechanix-deb-alpha"
+    let deb_repo_distro = "apollo"
+    let s3_publish_endpoint = "debian.mecha.build"
+
+    # Publish the package
+    publish_packages $package.name (pwd) $aptly_server_endpoint $deb_repo_name $deb_repo_distro $s3_publish_endpoint
 
     # Return to the script directory
     cd $source_dir

@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     libudev-dev libsystemd-dev libdrm-dev libcap-dev libegl1-mesa-dev libgbm-dev \
     libgles2-mesa-dev libinput-dev libx11-xcb-dev libxcb-composite0-dev \
     libxcb-icccm4-dev libxcb-image0-dev libxcb-render-util0-dev libxcb-xinput-dev libxkbcommon-dev \
-    cmake
+    cmake curl libdbus-1-dev libjson-c-dev libpam0g-dev tree
 
 
 # Download and install Nushell based on the system architecture
