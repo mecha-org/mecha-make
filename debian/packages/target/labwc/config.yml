@@ -28,9 +28,3 @@ packages:
     url: https://github.com/labwc/labwc/archive/refs/tags/0.7.3.tar.gz
     build_type: custom  
     package_config_dir: debian
-  # - name: "easysplash-swrender"
-  #   version: "1.0"
-  #   url: "https://github.com/texierp/easysplash/archive/refs/heads/master.tar.gz"
-  #   build_type: custom  
-  #   package_config_dir: easy-splash-swrender/debian
-  # Add more packages as needed

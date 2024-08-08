@@ -121,14 +121,15 @@ def build_custom_package [package] {
 
     # Install the built packages
     install_packages_in_directory (pwd)
-
+    log_info $"Package ($package_name) built and installed successfully"
     # Copy .deb files to assets directory
-    # collect_artifacts $package.name (pwd)
+    collect_artifacts $package.name (pwd)
+    log_info $"Package ($package_name) artifacts collected successfully"
 
     # Return to the script directory
     cd $source_dir
 
-    log_info $"Package ($package_name) built and installed successfully"
+
     return 0
 }
 

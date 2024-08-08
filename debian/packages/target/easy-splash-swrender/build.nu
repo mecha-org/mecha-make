@@ -55,7 +55,7 @@ def build_custom_package [package] {
 
     # Build the package
     if (debuild -us -uc | complete).exit_code != 0 {
-        log_error $"Building package ($package_name)"
+        log_error $"Failed building package ($package_name)"
         cd $source_dir
         return 1
     }

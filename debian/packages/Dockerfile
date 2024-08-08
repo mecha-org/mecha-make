@@ -48,7 +48,7 @@ RUN mkdir -p deps/wayland deps/wayland-protocols deps/dpkg-dev deps/libliftoff d
 COPY debian/packages/ /build/packages
 
 # Log the files in the /build directory
-RUN echo "Logging the files in the /build directory" && ls -la /build
+RUN echo "Logging the files in the /build directory" && ls -laR /build
 
 # Build and install Wayland and other packages using Nushell script
 RUN echo "Building packages" && \

@@ -18,7 +18,7 @@ export def install_packages_in_directory [dir: string] {
                 log_info $"Successfully resolved dependencies."
             }
         } else {
-            log_error $"Successfully installed all packages."
+            log_info $"Successfully installed all packages."
         }
     } else {
         log_warn "No .deb files found to install."
