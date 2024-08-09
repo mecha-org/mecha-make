@@ -3,3 +3,9 @@ packages:
  - easy-splash-swrender
  - imx-sdma-firmware
  - labwc
+
+aptly:
+  aptly_server_endpoint : "http://18.227.102.140"
+  deb_repo_name : "mechanix-deb-alpha"
+  deb_repo_distro : "apollo"
+  s3_publish_endpoint : "debian.mecha.build"

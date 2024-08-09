@@ -5,6 +5,19 @@ use modules/logger.nu *
 def main [] {
     let config = read_config
 
+    # Load aptly values as environment variables
+    let aptly_config = $config.aptly
+
+    print ($aptly_config)
+
+    # Set environment variables
+    load-env {
+        APTLY_SERVER_ENDPOINT : $aptly_config.aptly_server_endpoint,
+        DEB_REPO_NAME : $aptly_config.deb_repo_name,
+        DEB_REPO_DISTRO : $aptly_config.deb_repo_distro,
+        S3_PUBLISH_ENDPOINT : $aptly_config.s3_publish_endpoint
+    }
+
     for package in $config.packages {
         build_package $package
     }
