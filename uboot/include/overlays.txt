@@ -1,1 +1,1 @@
-fdt_overlays=gyro-disable.dtbo
+fdt_overlays=

@@ -1,36 +1,12 @@
 packages:
-  - name: wayland
-    version: 1.22.0-2.1
-    url: http://deb.debian.org/debian/pool/main/w/wayland/wayland_1.22.0-2.1.dsc
-    build_type: standard
-  - name: wayland-protocols
-    version: 1.36
-    url: http://deb.debian.org/debian/pool/main/w/wayland-protocols/wayland-protocols_1.36-1.dsc
-    build_type: standard
-  - name: dpkg
-    version: 1.22.10
-    url: http://deb.debian.org/debian/pool/main/d/dpkg/dpkg_1.22.10.dsc
-    build_type: standard
-  - name: libliftoff
-    version: 0.4.1-1
-    url: http://deb.debian.org/debian/pool/main/libl/libliftoff/libliftoff_0.4.1-1.dsc 
-    build_type: standard
-  - name: libdisplay-info
-    version: 0.1.1-2
-    url:  http://deb.debian.org/debian/pool/main/libd/libdisplay-info/libdisplay-info_0.1.1-2.dsc
-    build_type: standard
-  - name: wlroots
-    version: 0.17.4-1
-    url: http://deb.debian.org/debian/pool/main/w/wlroots/wlroots_0.17.4-1.dsc 
-    build_type: standard
-  - name: labwc
-    version: 0.7.3
-    url: https://github.com/labwc/labwc/archive/refs/tags/0.7.3.tar.gz
-    build_type: custom  
-    package_config_dir: labwc/debian
-  - name: "easysplash-swrender"
-    version: "1.0"
-    url: "https://github.com/texierp/easysplash/archive/refs/heads/master.tar.gz"
-    build_type: custom  
-    package_config_dir: easy-splash-swrender/debian
-  # Add more packages as needed
+ - bluez
+ - easy-splash-swrender
+ - imx-sdma-firmware
+ - labwc
+ - sway
+
+aptly:
+  aptly_server_endpoint : "http://18.227.102.140"
+  deb_repo_name : "mechanix-deb-alpha"
+  deb_repo_distro : "apollo"
+  s3_publish_endpoint : "debian.mecha.build"

@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 
 use logger.nu
-use fetch-source.nu
+use fetch-source.nu *
 
 
 export def download_firmware [work_dir:string] {
@@ -11,7 +11,7 @@ export def download_firmware [work_dir:string] {
     let manifest = $env.MANIFEST_DIR
     log_debug $"Fetching firmware URL from ($manifest)"
     let firmware_url = try {
-        open $manifest | get deps | get trusted-firmware | get url
+        open $manifest | get deps | get trusted-firmware | get src
     } catch {
         log_error $"Failed to parse manifest file: ($manifest)"
         log_error $"($env.LAST_ERROR)"
@@ -23,9 +23,11 @@ export def download_firmware [work_dir:string] {
     cd $firmware_dir
     log_debug $"moving to firmware directory: ($firmware_dir)"
 
+    log_info "Downloading firmware"
     let firmware_file = ($firmware_dir + "/firmware-imx-8.20.bin")
     if (not ($firmware_file | path exists)) {
-        curl -LO $firmware_url
+        source_download $firmware_url $firmware_dir
+        print (ls -la)
         log_debug $"Firmware downloaded to ($firmware_file)"
         chmod a+x firmware-imx-8.20.bin
         log_debug "Installing firmware"

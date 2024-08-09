@@ -10,7 +10,10 @@ export def build_uboot [uboot_dir:string] {
 
     let manifest =  $env.MANIFEST_DIR
 
-    let uboot_repo = open $manifest | get src
+    let config = open $manifest 
+
+    let uboot_repo = $config.src
+    let machine_defconfig = $config.flags.defconfig
 
     log_debug $"Building U-Boot ($uboot_dir)"
     log_debug "Fetching U-Boot source code and extracting it"
@@ -20,12 +23,12 @@ export def build_uboot [uboot_dir:string] {
     log_info "Building U-Boot"
     cd ($uboot_dir)
     make clean
-    make mecha_cometm_gen1_defconfig
+
+    make $machine_defconfig
     make -j (nproc)
 
     log_info "U-Boot build completed successfully"
 
     cd $uboot_dir
-
 
 }

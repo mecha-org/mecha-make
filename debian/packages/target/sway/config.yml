@@ -1,0 +1,5 @@
+packages:
+    name: sway
+    version: 1.9
+    url: http://deb.debian.org/debian/pool/main/s/sway/sway_1.9-1.dsc
+    build_type: standard
