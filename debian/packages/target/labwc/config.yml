@@ -12,9 +12,9 @@ packages:
     url: http://deb.debian.org/debian/pool/main/d/dpkg/dpkg_1.22.10.dsc
     build_type: standard
   - name: libliftoff
-    version: 0.5.0-1
-    url: http://deb.debian.org/debian/pool/main/libl/libliftoff/libliftoff_0.5.0-1.1.dsc
-    build_type: standard
+    version: 0.4.1
+    url: https://salsa.debian.org/debian/libliftoff/-/archive/debian/latest/libliftoff-debian-latest.tar.gz
+    build_type: custom
   - name: libdisplay-info
     version: 0.1.1-2
     url:  http://deb.debian.org/debian/pool/main/libd/libdisplay-info/libdisplay-info_0.1.1-2.dsc

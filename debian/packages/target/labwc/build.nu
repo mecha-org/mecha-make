@@ -100,8 +100,10 @@ def build_custom_package [package] {
 
     # Move into the extracted directory
     cd $package_dir
+    
 
     # Move the debian directory into the package
+    if ($package.name != "libliftoff")  {
     let debian_source_dir = ($source_dir | path join $package.package_config_dir)
     if ($debian_source_dir | path exists) {
         log_debug $"Moving debian directory from ($debian_source_dir)"
@@ -111,6 +113,7 @@ def build_custom_package [package] {
         log_error $"Debian source directory ($debian_source_dir) not found"
         cd $source_dir
         return 1
+    }
     }
 
     # Build the package
@@ -129,6 +132,9 @@ def build_custom_package [package] {
     # Copy .deb files to assets directory
     collect_artifacts $package.name (pwd)
     log_info $"Package ($package_name) artifacts collected successfully"
+
+    # Publish the package
+    publish_packages $package.name (pwd) $env.APTLY_SERVER_ENDPOINT $env.DEB_REPO_NAME $env.DEB_REPO_DISTRO $env.S3_PUBLISH_ENDPOINT
 
     # Return to the script directory
     cd $source_dir
