@@ -25,7 +25,7 @@ def main [] {
     build_deb_package $package_name
 
     # collect the package
-    collect_package $package_name $path
+    collect_artifacts $package_name $path
 
     # upload the package to the repository
     publish_packages $package (pwd) $env.APTLY_SERVER_ENDPOINT $env.DEB_REPO_NAME $env.DEB_REPO_DISTRO $env.S3_PUBLISH_ENDPOINT
