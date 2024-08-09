@@ -3,6 +3,7 @@ packages:
  - easy-splash-swrender
  - imx-sdma-firmware
  - labwc
+ - sway
 
 aptly:
   aptly_server_endpoint : "http://18.227.102.140"
