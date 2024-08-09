@@ -31,7 +31,7 @@ def build_standard_package [package] {
     # List the files in the directory
     if (ls -la | length) > 0 {
         log_debug "***********Listing files in the directory*********"
-        log_debug $"(ls -la)"
+        print (ls -la)
     } else {
         log_warn "No files found in the directory."
     }
@@ -60,14 +60,8 @@ def build_standard_package [package] {
     # Copy .deb files to assets directory
     collect_artifacts $package.name (pwd)
 
-    # publish the package
-    let aptly_server_endpoint = "http://18.227.102.140"
-    let deb_repo_name = "mechanix-deb-alpha"
-    let deb_repo_distro = "apollo"
-    let s3_publish_endpoint = "debian.mecha.build"
-
     # Publish the package
-    publish_packages $package.name (pwd) $aptly_server_endpoint $deb_repo_name $deb_repo_distro $s3_publish_endpoint
+    publish_packages $package.name (pwd) $env.APTLY_SERVER_ENDPOINT $env.DEB_REPO_NAME $env.DEB_REPO_DISTRO $env.S3_PUBLISH_ENDPOINT
     
     cd ..
 
