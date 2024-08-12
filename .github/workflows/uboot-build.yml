@@ -66,8 +66,6 @@ jobs:
             base=$(basename "$file")
             mv "$file" "artifacts/${base%.bin}-v${VERSION}.bin"
           done
-        outputs:
-          version: ${{ env.VERSION }}
 
       - name: List all Artifacts
         run: |
@@ -82,7 +80,7 @@ jobs:
       - name: Create Tag
         id: create_tag
         run: |
-          VERSION=${{ steps.prepare_artifacts.outputs.version }}
+          VERSION=${{ env.VERSION }}
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git tag -a "v${VERSION}" -m "Release version ${VERSION}"
@@ -91,8 +89,8 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v.${{ steps.prepare_artifacts.outputs.version }}
-          name: Release v${{ steps.prepare_artifacts.outputs.version }}
-          body: "Automatic release of version ${{ steps.prepare_artifacts.outputs.version }}"
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          body: "Automatic release of version ${{ env.VERSION }}"
           files: |
             artifacts/*
