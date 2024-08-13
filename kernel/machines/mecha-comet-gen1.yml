@@ -1,11 +1,10 @@
 src: "git@github.com:chiragp-mecha/linux-imx.git"
-rev:
-version: 0.1.1
+rev: 6.1.22-mecha # last latest build -> head to be fatched  
+version: 6.1.22-mecha #kernel version to be applied for github release  => 6.1.1-mecha next release 6.1.2-mecha
 # flags for the build system any extra flags (or args) to pass to compiler like defconfig or any other it will be list of key pair values
 flags:
   defconfig : "mecha_v8_defconfig"
   arch: "arm64"
   cross_compile: "aarch64-linux-gnu-"
   debian_frontend : "noninteractive"
-
-
+  platform: "imx8mm-mecha-comet-m-gen1"
