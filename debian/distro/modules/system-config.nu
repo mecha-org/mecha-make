@@ -58,13 +58,12 @@ export def configure_sys_files [] {
   SUDO cp $fstab_src $fstab_dest
 
   let logind_conf_content = "HandlePowerKey=ignore"
-  let temp_file = "/tmp/logind-conf-content"
-
-  echo $logind_conf_content | save --force $temp_file
-
   let logind_conf_dest = $rootfs_dir + "/etc/systemd/logind.conf"
+  # Check if the content already exists, and if not, append it
+  SUDO sh -c $"grep -qxF '($logind_conf_content)' ($logind_conf_dest) || echo '($logind_conf_content)' >> ($logind_conf_dest)"
 
-  SUDO mv $temp_file $logind_conf_dest
+  log_debug "Configuring system files completed successfully."
+
 
 }
 
