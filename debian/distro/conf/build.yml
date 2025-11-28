@@ -15,9 +15,11 @@ debian:
   version: 13
   name: trixie
 apt:
-  sources: 
-    - http://pkg.mecha.so/debian pulp upload
-    - http://debian.mecha.build apollo main
+  sources:
+    - url: http://pkg.mecha.so/debian pulp upload
+      key: https://pub-a2f44c787cec4290833312e57fd59522.r2.dev/comet.asc
+    - url: http://debian.mecha.build apollo main
+      key: null 
 os-release:
   ID: mechanix
   ID_LIKE:
@@ -32,15 +34,15 @@ os-release:
   BUG_REPORT_URL: "https://forum.mecha.so/"
 
 keyboard-config:
-  layout : "us"
-  model : "pc1067"
-  variant : ""
-  options : ""
-  toggle : "No toggling"
+  layout: "us"
+  model: "pc1067"
+  variant: ""
+  options: ""
+  toggle: "No toggling"
 
 #  make this as relative path
 packages-path: ./include/
-scripts-path:  ./../../uboot/include
-media-files : ./include/splash/
-firmware-files : ./include/packages/firmware
+scripts-path: ./../../uboot/include
+media-files: ./include/splash/
+firmware-files: ./include/packages/firmware
 include-path: ./include

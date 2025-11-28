@@ -95,12 +95,12 @@ export def install_target_packages [] {
     log_info "Cleaning apt cache after package installation..."
     CHROOT apt-get clean
 }
-
 export def add_debian_mechanix_source [] {
     let rootfs_dir = $env.ROOTFS_DIR
     alias CHROOT = sudo chroot $rootfs_dir
 
     let sources_list_path = "/etc/apt/sources.list"
+    let keyrings_dir = "/etc/apt/keyrings"
 
     # Get the package source from the YAML configuration
     let build_conf_path = $env.BUILD_CONF_PATH
@@ -108,48 +108,47 @@ export def add_debian_mechanix_source [] {
 
     log_info "Adding Mechanix package sources to sources.list"
 
-    # Add SSL bypass configuration before adding sources
-    log_debug "Adding SSL bypass configuration"
-    sudo chroot $rootfs_dir bash -c "echo 'Acquire::https::Verify-Peer \"false\";' > /etc/apt/apt.conf.d/99-ssl-bypass"
-    sudo chroot $rootfs_dir bash -c "echo 'Acquire::https::Verify-Host \"false\";' >> /etc/apt/apt.conf.d/99-ssl-bypass"
-    sudo chroot $rootfs_dir bash -c "echo 'APT::Get::AllowUnauthenticated \"true\";' >> /etc/apt/apt.conf.d/99-ssl-bypass"
-    log_debug "Added SSL bypass configuration"
+    # Ensure keyrings directory exists
+    CHROOT mkdir -p $keyrings_dir
 
     # Iterate through each source and add it to sources.list
     $deb_package_sources | each { |source|
-        let source_line = $"deb [trusted=yes allow-insecure=yes allow-weak=yes allow-downgrade-to-insecure=yes] ($source)"
-        log_debug $"Adding source: ($source_line)"
+        let repo_url = $source.url
+        let repo_key = $source.key?
         
-        sudo chroot $rootfs_dir bash -c $"echo '($source_line)' >> ($sources_list_path)"
-
-        if $env.LAST_EXIT_CODE != 0 {
-            log_error $"Failed to add source: ($source_line)"
-            return
+        # Download and add GPG key if provided
+        if $repo_key != null and $repo_key != "" {
+            log_debug $"Downloading GPG key from: ($repo_key)"
+            
+            # Download key and convert to gpg format
+            curl -fsSL $repo_key | CHROOT gpg --dearmor -o $"($keyrings_dir)/comet.gpg"
+            
+            log_info $"Added GPG key for ($repo_url)"
+            
+            # Add source with signed-by pointing to the key (with newline)
+            let source_line = $"deb [signed-by=($keyrings_dir)/comet.gpg] ($repo_url)\n"
+            log_debug $"Adding source: ($source_line)"
+            printf $source_line | CHROOT tee -a $sources_list_path > /dev/null
+        } else {
+            # No key provided, add with trusted=yes (with newline)
+            let source_line = $"deb [trusted=yes] ($repo_url)\n"
+            log_debug $"Adding source: ($source_line)"
+            printf $source_line | CHROOT tee -a $sources_list_path > /dev/null
         }
     }
 
     log_info "Successfully added all Mechanix package sources"
 
-    # Update package lists with SSL bypass and redirect-friendly settings
-    log_info "Updating package lists with SSL bypass and redirect support"
+    log_debug "Verifying contents of sources.list:"
+    CHROOT cat $sources_list_path
+
+    # Update package lists
+    log_info "Updating package lists"
     
     try {
-        CHROOT apt-get update -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false --allow-unauthenticated
+        CHROOT apt-get update
         log_info "Successfully updated package lists"
     } catch {
-        log_warning "Standard update failed, trying with additional options"
-        try {
-            CHROOT apt-get update --allow-releaseinfo-change -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false --allow-unauthenticated -o Debug::Acquire::http=true
-            log_info "Successfully updated package lists on second attempt"
-        } catch {
-            log_error "Failed to update package lists after multiple attempts"
-            log_info "Continuing with available packages..."
-        }
-    }
-
-    if $env.LAST_EXIT_CODE == 0 {
-        log_info "Successfully updated package lists"
-    } else {
         log_error "Failed to update package lists"
     }
 }
