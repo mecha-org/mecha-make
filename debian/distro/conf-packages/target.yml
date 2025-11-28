@@ -27,6 +27,7 @@ package_groups:
       - openssh-server
       - sudo
       - bash-completion
+      - ca-certificates
       - dosfstools
       - upower
       - libglib2.0-0

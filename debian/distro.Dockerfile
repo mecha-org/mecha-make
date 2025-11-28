@@ -1,11 +1,12 @@
 # Use Debian trixie as the base image
 FROM debian:trixie
 
-# Set non-interactive frontend for apt-get
+# Non-interactive apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update base image and install basic dependencies including cmake
+# Update base image and install dependencies including CA certs
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+    ca-certificates \
     wget \
     sudo \
     apt \
@@ -16,37 +17,30 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     curl \
     gnupg \
     unzip \
-    patchelf
+    patchelf \
+ && update-ca-certificates
 
-# Download and install Nushell
+# Install Nushell
 RUN curl -fsSL https://apt.fury.io/nushell/gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/fury-nushell.gpg
 RUN echo "deb https://apt.fury.io/nushell/ /" | tee /etc/apt/sources.list.d/fury.list
-RUN apt update
-RUN apt install nushell
+RUN apt-get update && apt-get install -y nushell
 
-# Set up working directory 
+# Set up working directory
 WORKDIR /build
-
-# setup assets directory
 RUN mkdir -p /build/assets
 
-# Create necessary directories
-# RUN mkdir -p deps/wayland deps/wayland-protocols deps/dpkg-dev deps/libliftoff deps/libdisplay-info deps/wlroots deps/labwc
-
-# Copy the compositor directory
+# Copy project files
 COPY debian/distro /build/debian/distro
-
-# Copy uboot directory
 COPY uboot /build/uboot
 
-# Log the files in the /build directory
-RUN echo "Logging the files in the /build directory" && ls -la /build
+# Log build directory
+RUN echo "Logging /build directory" && ls -la /build
 
-# Build and install Wayland and other packages using Nushell script
+# Build packages
 RUN echo "Building packages" && \
     cd /build/debian/distro && \
     ls -la && \
     nu build-debian.nu mecha-comet-m-gen1 /build/assets
 
-# Set the default command to bash
+# Default command
 CMD ["/bin/bash"]
