@@ -7,7 +7,12 @@ Build system for creating Fedora-based images for Mecha Comet devices using `mko
 - `mkosi.conf` – Base mkosi configuration.
 - `mkosi.conf.d/` – Package groups and additional configuration.
 - `mkosi.profiles/` – Build profiles such as `comet`, `release`, and `qemu`.
+- `mkosi.skeleton/` – Files copied into the image before the package manager runs.
+  Note: with incremental builds, skeleton changes need a full rebuild (`-ff`).
+- `mkosi.extra.comet/` – Comet-only files copied in after the OS is installed
+  (USB gadget service, dnsmasq config). Applied on every build.
 - `mkosi.version` – Image version.
+- `build.sh` – Rootless, containerized build wrapper (see below).
 
 ## Prerequisites
 
@@ -45,7 +50,7 @@ Do not commit `mkosi.env`.
 
 A profile is always required.
 
-Build a Comet image:
+### Host-installed mkosi
 
 ```sh
 sudo mkosi --profile=comet -f build
@@ -56,6 +61,19 @@ Build a release image:
 ```sh
 sudo mkosi --profile=comet,release -f build
 ```
+
+### Containerized
+
+`./build.sh` builds inside a podman container and stamps the image version + commit SHA:
+
+```sh
+./build.sh                     # incremental comet build (mkosi -f)
+./build.sh --force             # full rebuild (mkosi -ff)
+./build.sh --profile=qemu      # other profiles
+./build.sh --version=20260813-1200   # override the IMAGE_VERSION stamp
+```
+
+Incremental builds cache the package-install step. After editing `mkosi.skeleton/`, rebuild with `--force` (`-ff`).
 
 ## Inspect the Image
 
@@ -85,3 +103,8 @@ If you only want to boot a prebuilt image from GitHub Actions, download the `mec
 chmod +x run-qemu.sh
 ./run-qemu.sh
 ```
+
+## SSH over USB-C
+
+The comet image exposes a USB ethernet gadget (`usb0` = `172.16.42.1/24`) on
+the USB-C/PD port. Use `ssh mecha@172.16.42.1` to connect to the device. Only enabled for the comet profile.
