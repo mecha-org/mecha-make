@@ -50,12 +50,19 @@ case "${1:-}" in
 esac
 
 IMAGE=mechanix-os-qemu.raw
-OVMF_CODE=/usr/share/OVMF/OVMF_CODE_4M.fd
-OVMF_VARS_TEMPLATE=/usr/share/OVMF/OVMF_VARS_4M.fd
 OVMF_VARS=/tmp/mechanix-os-qemu-ovmf-vars.fd
 
+# Locate OVMF firmware: Debian ships /usr/share/OVMF, Arch's edk2 ships
+# /usr/share/edk2/x64. Overridable via env.
+for cand in "${OVMF_CODE:-}" /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/edk2/x64/OVMF_CODE.4m.fd; do
+    [[ -n "$cand" && -f "$cand" ]] && { OVMF_CODE=$cand; break; }
+done
+for cand in "${OVMF_VARS_TEMPLATE:-}" /usr/share/OVMF/OVMF_VARS_4M.fd /usr/share/edk2/x64/OVMF_VARS.4m.fd; do
+    [[ -n "$cand" && -f "$cand" ]] && { OVMF_VARS_TEMPLATE=$cand; break; }
+done
+
 if [[ ! -f "$OVMF_CODE" || ! -f "$OVMF_VARS_TEMPLATE" ]]; then
-    echo "OVMF firmware not found at $OVMF_CODE / $OVMF_VARS_TEMPLATE - install it with: sudo apt install ovmf" >&2
+    echo "OVMF firmware not found (tried /usr/share/OVMF and /usr/share/edk2/x64) - install ovmf/edk2-ovmf or set OVMF_CODE/OVMF_VARS_TEMPLATE." >&2
     exit 1
 fi
 
