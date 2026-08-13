@@ -1,0 +1,6 @@
+[Unit]
+Description=Mecha USB developer mode
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/dnsmasq -k --conf-file=/etc/dnsmasq.d/mecha-usb.conf
