@@ -45,7 +45,7 @@ jobs:
             xz \
             tar
 
-      # 3. Cache DNF packages
+      # 3. Cache DNF packages for the tool-install step below.
       - name: Cache DNF
         uses: actions/cache@v4
         with:
@@ -53,6 +53,15 @@ jobs:
           key: dnf-${{ runner.os }}-${{ hashFiles('mkosi.conf', 'mkosi.conf.d/**', 'mkosi.profiles/comet.conf') }}
           restore-keys: |
             dnf-${{ runner.os }}-
+
+      # Cache the RPMs mkosi's dnf downloads (PackageCacheDirectory=mkosi.pkgcache).
+      - name: Cache mkosi RPMs
+        uses: actions/cache@v4
+        with:
+          path: mkosi.pkgcache
+          key: mkosi-pkg-${{ runner.os }}-${{ hashFiles('mkosi.conf', 'mkosi.conf.d/**', 'mkosi.profiles/comet.conf') }}
+          restore-keys: |
+            mkosi-pkg-${{ runner.os }}-
 
       # 4. Configure the mecha user's password from a repo secret If CI_MECHA_USER_PASSWORD isn't configured, the build
       # falls back to the secure default: the mecha user ships locked.

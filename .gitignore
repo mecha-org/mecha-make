@@ -1,5 +1,4 @@
 boot*
-mkosi.extra*
 fedora43*
 
 # mkosi build outputs (disk images and split kernel/initrd artifacts, for
@@ -15,6 +14,11 @@ mkosi.env
 mkosi.local.conf
 mkosi.local/
 mkosi.tools/*
+
+mkosi.cache/*
+!mkosi.cache/.gitkeep
+mkosi.pkgcache/*
+!mkosi.pkgcache/.gitkeep
 
 # Scratch logs from manual `mkosi build ... | tee build.log`-style runs.
 build.log
