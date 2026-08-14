@@ -7,7 +7,7 @@ set -euo pipefail
 #   ./build.sh --profile=qemu
 #   ./build.sh --version=20260813-1200
 
-IMAGE_NAME=mecha-build
+CONTAINER_NAME=mecha-build
 
 opts_force=0
 profile="comet"
@@ -25,9 +25,9 @@ done
 
 cd "$(dirname "$0")"
 
-if ! podman image exists "$IMAGE_NAME"; then
-    echo "==> Building build container ($IMAGE_NAME)…"
-    podman build -t "$IMAGE_NAME" -f Containerfile .
+if ! podman image exists "$CONTAINER_NAME"; then
+    echo "==> Building build container ($CONTAINER_NAME)…"
+    podman build -t "$CONTAINER_NAME" -f Containerfile .
 fi
 
 force_flag=""
@@ -42,5 +42,5 @@ commit_sha=$(git rev-parse --short HEAD)
 echo "==> Building profile '$profile' (IMAGE_VERSION=$version, commit=$commit_sha)…"
 
 export TIMEFORMAT='==> Build took %3lR (%R real)'
-time podman run --rm --cap-add=SYS_ADMIN --network=host -v "$PWD":/build -w /build "$IMAGE_NAME" \
+time podman run --rm --cap-add=SYS_ADMIN --network=host -v "$PWD":/build -w /build "$CONTAINER_NAME" \
     bash -euxc "git config --global --add safe.directory /build; mkosi --profile=$profile --image-version=\"$version\" --environment=MECHA_COMMIT_SHA=\"$commit_sha\" $force_flag -f build"
