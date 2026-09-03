@@ -1,0 +1,8 @@
+#!/bin/bash
+# Lock the session, then blank the panel once the lock surface is up.
+# Kept as its own script because nwg-bar's "exec" does not go through a
+# shell, so chained/backgrounded commands can't live inline in bar.json.
+
+mechanix-lockscreen &
+sleep 0.3
+wlopm --off DSI-1

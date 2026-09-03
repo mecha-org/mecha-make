@@ -63,16 +63,21 @@ jobs:
           restore-keys: |
             mkosi-pkg-${{ runner.os }}-
 
-      # 4. Configure the mecha user's password from a repo secret If CI_MECHA_USER_PASSWORD isn't configured, the build
-      # falls back to the secure default: the mecha user ships locked.
+      # 4. Configure CI credentials from repo secrets. Unset secrets fall
+      # back to secure defaults: the mecha user ships locked, no PIN (tap-to-unlock).
       - name: Configure CI credentials
         env:
           CI_MECHA_USER_PASSWORD: ${{ secrets.CI_MECHA_USER_PASSWORD }}
+          CI_MECHANIX_LOCKSCREEN_PIN: ${{ secrets.CI_MECHANIX_LOCKSCREEN_PIN }}
         run: |
           set -euo pipefail
+          touch mkosi.env
+          chmod 600 mkosi.env
           if [ -n "${CI_MECHA_USER_PASSWORD}" ]; then
-            printf 'MECHA_USER_PASSWORD=%s\n' "${CI_MECHA_USER_PASSWORD}" > mkosi.env
-            chmod 600 mkosi.env
+            printf 'MECHA_USER_PASSWORD=%s\n' "${CI_MECHA_USER_PASSWORD}" >> mkosi.env
+          fi
+          if [ -n "${CI_MECHANIX_LOCKSCREEN_PIN}" ]; then
+            printf 'MECHANIX_LOCKSCREEN_PIN=%s\n' "${CI_MECHANIX_LOCKSCREEN_PIN}" >> mkosi.env
           fi
 
       # 5. Compute a single timestamp for this run, used as the image's

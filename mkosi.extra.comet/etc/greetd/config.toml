@@ -1,0 +1,11 @@
+[terminal]
+# Let greetd pick an available VT
+vt = "next"
+
+[default_session]
+command = "agreety --cmd /bin/sh"
+user = "greetd"
+
+[initial_session]
+command = "/usr/bin/mechanix-session"
+user = "mecha"

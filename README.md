@@ -44,6 +44,12 @@ echo "MECHA_USER_PASSWORD=YOUR_PASSWORD" > mkosi.env
 chmod 600 mkosi.env
 ```
 
+`mechanix-lockscreen`'s PIN if left unset, the lockscreen falls back to tap-to-unlock. To provision a PIN on built images, add it to `mkosi.env`:
+
+```sh
+echo "MECHANIX_LOCKSCREEN_PIN=YOUR_4_DIGIT_PIN" >> mkosi.env
+```
+
 Do not commit `mkosi.env`.
 
 ## Build

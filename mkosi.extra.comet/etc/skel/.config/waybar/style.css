@@ -1,0 +1,50 @@
+* {
+    font-family: sans-serif;
+    font-size: 16px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: rgba(20, 20, 20, 0.92);
+    color: #ffffff;
+    border: none;
+}
+
+#custom-launcher {
+    font-family: "Font Awesome 6 Free Solid";
+    font-weight: 900;
+    padding: 0 16px;
+    font-size: 18px;
+}
+
+#taskbar button {
+    padding: 4px 10px;
+    margin: 0 2px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    min-width: 0;
+}
+
+#taskbar button.active {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+#custom-close {
+    font-family: "Font Awesome 6 Free Solid";
+    font-weight: 900;
+    padding: 0 14px;
+    font-size: 16px;
+}
+
+#clock {
+    padding: 0 12px;
+}
+
+#custom-power {
+    font-family: "Font Awesome 6 Free Solid";
+    font-weight: 900;
+    padding: 0 14px;
+    font-size: 16px;
+    color: #ff5c5c;
+}

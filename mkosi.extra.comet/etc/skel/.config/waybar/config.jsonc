@@ -1,0 +1,37 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 40,
+    "spacing": 4,
+    "exclusive": true,
+    "modules-left": ["custom/launcher"],
+    "modules-center": ["wlr/taskbar"],
+    "modules-right": ["custom/close", "clock", "custom/power"],
+    "custom/launcher": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "nwg-drawer -k -nocats -nofs -c 3 -is 48 -spacing 12"
+    },
+    "wlr/taskbar": {
+        "format": "{icon}",
+        "icon-size": 24,
+        "tooltip-format": "{title}",
+        "on-click": "activate",
+        "on-click-right": "close",
+        "active-first": true
+    },
+    "custom/close": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "wlrctl toplevel close state:active"
+    },
+    "clock": {
+        "format": "{:%H:%M}",
+        "tooltip": false
+    },
+    "custom/power": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "nwg-bar -p left -a middle -ml 200 -i 40 -g Adwaita-dark -t bar.json"
+    }
+}

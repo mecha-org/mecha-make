@@ -3,44 +3,40 @@ set -e
 
 USERNAME=mecha
 
-# Create user with home directory and bash shell
 useradd -m -s /bin/bash "$USERNAME"
 
-# MECHA_USER_PASSWORD is picked up from mkosi.env (auto-loaded by mkosi into
-# the script environment, gitignored, see README.md "Credentials"). If it
-# isn't set, the account is left locked (no password) rather than falling
-# back to a known default - console autologin does not require a password.
+# From mkosi.env. Unset leaves the account locked, not a known default.
 if [ -n "${MECHA_USER_PASSWORD:-}" ]; then
     echo "$USERNAME:$MECHA_USER_PASSWORD" | chpasswd
 else
     passwd -l "$USERNAME"
 fi
 
-# Add the user to the 'wheel' group for sudo privileges
 usermod -aG wheel "$USERNAME"
+
+# From mkosi.env. Unset falls back to tap-to-unlock.
+if [ -n "${MECHANIX_LOCKSCREEN_PIN:-}" ]; then
+    case "$MECHANIX_LOCKSCREEN_PIN" in
+        [0-9][0-9][0-9][0-9]) ;;
+        *)
+            echo "MECHANIX_LOCKSCREEN_PIN must be exactly 4 digits" >&2
+            exit 1
+            ;;
+    esac
+    PIN_FILE=/etc/mechanix/pin.passwd
+    install -d -m 0750 -o root -g "$USERNAME" "$(dirname "$PIN_FILE")"
+    HASH="$(openssl passwd -6 "$MECHANIX_LOCKSCREEN_PIN")"
+    printf '%s:%s\n' "$USERNAME" "$HASH" > "$PIN_FILE"
+    chown root:"$USERNAME" "$PIN_FILE"
+    chmod 0640 "$PIN_FILE"
+fi
 
 glib-compile-schemas /usr/share/glib-2.0/schemas/
 
-# Set the default timezone for the built image.
 ln -snf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
 echo "Asia/Kolkata" > /etc/timezone
 
-# Optional: allow wheel group to use sudo without password
-# Uncomment if you want passwordless sudo
-# echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-# Stamp per-build identifiers into /etc/os-release (Fedora's own fields are
-# left as-is - these are added on top, not a replacement) so any built image
-# can be traced back later (e.g. for bug reports):
-# - IMAGE_VERSION is the standard os-release(5) field for this (mkosi
-#   auto-adds IMAGE_ID from ImageId=, but not this one). Comes from
-#   mkosi.version, or CI's --image-version= override (see
-#   mkosi-image-build.yml) - CI names the uploaded artifact after that same
-#   value, so the two can never drift apart.
-# - BUILD_ID is the source commit this image was built from - set via CI's
-#   --environment=MECHA_COMMIT_SHA=. Left out on local builds (no CI to set
-#   it), rather than stamping a misleading value.
-# - VARIANT_ID records which profile(s) built it.
+# Traceability: IMAGE_VERSION/VARIANT_ID always set; BUILD_ID (commit sha) only when CI provides MECHA_COMMIT_SHA.
 VARIANT_ID="${PROFILES:-comet}"
 VARIANT_ID="${VARIANT_ID// /-}"
 {
@@ -51,13 +47,7 @@ VARIANT_ID="${VARIANT_ID// /-}"
     echo "VARIANT_ID=\"$VARIANT_ID\""
 } >> /etc/os-release
 
-# phoc's packaged /usr/share/phosh/phoc.ini gives the "Virtual-1" output (the
-# DRM connector name paravirtualized GPUs like qemu's virtio-vga register as)
-# an arbitrary 720x1440@scale=2 placeholder. On the qemu profile, replace it
-# to match the real Comet DSI-1 panel instead: 1080x1240 physical @ scale=2,
-# i.e. the same 540x620 logical resolution phosh's UI is laid out for on
-# actual hardware. Done here (not mkosi.skeleton/mkosi.extra) because this
-# needs to run after the phosh package installs its own default file.
+# qemu profile: point phoc at the virtio-vga "Virtual-1" output (phosh's packaged default targets a different placeholder connector).
 if [[ " ${PROFILES:-} " == *" qemu "* ]]; then
     cat > /usr/share/phosh/phoc.ini <<'EOF'
 #[core]
@@ -67,15 +57,7 @@ if [[ " ${PROFILES:-} " == *" qemu "* ]]; then
 #scale = 2
 
 [output:Virtual-1]
-# Matches the real Mecha Comet DSI-1 panel's physical resolution
-# (1080x1240). scale=1 (unlike DSI-1's scale=2) since virtio-vga-gl's
-# emulated panel has nowhere near the real AMOLED's pixel density, so
-# doubling logical UI size here just makes everything look oversized.
-# No modeline: that's a legacy analog-timing concept for real video hardware
-# with fixed CRTC timings. virtio-vga-gl negotiates its resolution from the
-# host window/texture size dynamically, so forcing a custom modeline onto it
-# causes a mismatch between what phoc thinks the canvas size is and what
-# QEMU is actually presenting - visible as stretched/distorted output.
+# Matches real Comet DSI-1 logical size; scale=1 since virtio-vga-gl has no modeline concept.
 mode = 1080x1240
 scale = 1
 
@@ -95,10 +77,7 @@ mode = 720x1440
 scale = 2
 EOF
 
-    # virtio-gpu-gl's hardware cursor plane renders Y-flipped through
-    # wlroots (a known virglrenderer/wlroots interaction, not phoc-specific -
-    # same bug hits sway and other wlroots compositors under QEMU GL).
-    # Force software cursor compositing instead.
+    # virtio-gpu-gl hardware cursor renders Y-flipped under wlroots; force software cursor.
     mkdir -p /etc/environment.d
     echo 'WLR_NO_HARDWARE_CURSORS=1' > /etc/environment.d/50-qemu-wlr-no-hw-cursor.conf
 fi

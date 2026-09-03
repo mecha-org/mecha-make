@@ -1,0 +1,41 @@
+window {
+    background-color: rgb(36, 47, 79);
+    color: #eeeeee;
+}
+
+entry {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+button,
+image {
+    background: none;
+    border: none;
+}
+
+button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#category-button {
+    margin: 0 10px 0 10px;
+}
+
+#pinned-box {
+    padding-bottom: 5px;
+    border-bottom: 1px dotted gray;
+}
+
+#files-box {
+    padding: 5px;
+    border: 1px dotted gray;
+    border-radius: 15px;
+}
+
+#status-line-wrapper,
+#status-label {
+    opacity: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+}

@@ -1,0 +1,26 @@
+#!/bin/bash
+# Session: compositor + waybar, nwg-drawer, mechanix-keyboard.
+
+# DSI panel is imx-lcdif card2; the primary GPU (etnaviv) has no modeset.
+export MECHA_DRM_DEVICE=/dev/dri/card2
+
+/usr/bin/mechanix-compositor > /tmp/compositor.log 2>&1 &
+COMPOSITOR_PID=$!
+
+WAYLAND_DISPLAY=""
+for i in $(seq 1 150); do
+    sock=$(ls -d "$XDG_RUNTIME_DIR"/wayland-* 2>/dev/null | grep -v '\.lock$' | head -1 || true)
+    if [ -n "$sock" ]; then WAYLAND_DISPLAY=$(basename "$sock"); break; fi
+    sleep 0.1
+done
+
+if [ -n "$WAYLAND_DISPLAY" ]; then
+    export WAYLAND_DISPLAY
+
+    rm -f "${XDG_DATA_HOME:-$HOME/.local/share}/nwg-drawer.lock"
+    nwg-drawer -r -k -nocats -nofs -c 3 -is 48 -spacing 12 >/tmp/nwg-drawer.log 2>&1 &
+    waybar >/tmp/waybar.log 2>&1 &
+    mechanix-keyboard >/tmp/mechanix-keyboard.log 2>&1 &
+fi
+
+wait "$COMPOSITOR_PID"

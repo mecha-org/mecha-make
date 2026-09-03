@@ -1,0 +1,22 @@
+[
+    {
+        "label": "Lock",
+        "exec": "mechanix-lock",
+        "icon": "/usr/share/nwg-bar/images/system-lock-screen.svg"
+    },
+    {
+        "label": "Reboot",
+        "exec": "systemctl reboot",
+        "icon": "/usr/share/nwg-bar/images/system-reboot.svg"
+    },
+    {
+        "label": "Power off",
+        "exec": "systemctl poweroff",
+        "icon": "/usr/share/nwg-bar/images/system-shutdown.svg"
+    },
+    {
+        "label": "Cancel",
+        "exec": "true",
+        "icon": "/usr/share/nwg-bar/images/system-log-out.svg"
+    }
+]
