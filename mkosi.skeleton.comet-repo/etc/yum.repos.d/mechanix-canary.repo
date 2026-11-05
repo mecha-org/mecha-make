@@ -1,0 +1,9 @@
+[mechanix-canary]
+name=Mechanix canary
+baseurl=https://pkg.mecha.so/repo/rpm/fedora-44/canary/
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://pkg.mecha.so/keys/mecha-signing-key.asc
+# Pin this repo below Fedora's own repos (priority=99, the dnf5 default) so custom-built kernel/firmware packages are always preferred over the stock ones.
+priority=1

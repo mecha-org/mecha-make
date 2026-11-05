@@ -1,3 +1,3 @@
 enable greetd.service
 enable mechanix-system-service.service
-
+enable systemd-timesyncd.service

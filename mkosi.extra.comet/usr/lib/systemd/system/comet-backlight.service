@@ -1,0 +1,12 @@
+[Unit]
+Description=Set DSI panel backlight to 70%%
+DefaultDependencies=no
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'b=/sys/class/backlight/32e60000.dsi.0; max=$(cat "$b/max_brightness"); echo $(( max * 70 / 100 )) > "$b/brightness"'
+
+[Install]
+WantedBy=multi-user.target

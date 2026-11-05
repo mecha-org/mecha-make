@@ -1,4 +1,4 @@
-name: Fedora 43 mkosi Image Build
+name: Mechanix OS Image Build
 
 on:
   push:
@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-24.04-arm
 
     container:
-      image: fedora:43
+      image: fedora:44
       options: --privileged
 
     env:
-      MKOSI_OUTPUT: fedora43.raw
+      MKOSI_OUTPUT: mechanix-os.raw
       IMAGE_PREFIX: mechanix-os
 
     steps:
@@ -36,6 +36,7 @@ jobs:
             systemd \
             systemd-repart \
             git \
+            python3 \
             wget \
             util-linux \
             e2fsprogs \
@@ -44,41 +45,65 @@ jobs:
             xz \
             tar
 
-      # 3. Cache DNF packages
+      # 3. Cache DNF packages for the tool-install step below.
       - name: Cache DNF
         uses: actions/cache@v4
         with:
           path: /var/cache/dnf
-          key: dnf-${{ runner.os }}-${{ hashFiles('mkosi.conf') }}
+          key: dnf-${{ runner.os }}-${{ hashFiles('mkosi.conf', 'mkosi.conf.d/**', 'mkosi.profiles/comet.conf') }}
           restore-keys: |
             dnf-${{ runner.os }}-
 
-      # 4. Download custom RPMs
-      - name: Fetch custom kernel & firmware
-        run: |
-          set -euxo pipefail
-          cd mkosi.packages
-          wget https://pub-a2f44c787cec4290833312e57fd59522.r2.dev/kernel-mainline/kernel-7.0.0-2.aarch64.rpm
-          wget https://pub-a2f44c787cec4290833312e57fd59522.r2.dev/firmware-nxp-wifi-nxpiw612.fc43.aarch64.rpm
-          wget https://pub-a2f44c787cec4290833312e57fd59522.r2.dev/squeekboard-1.43.1-2.fc42.aarch64.rpm
+      # Cache the RPMs mkosi's dnf downloads (PackageCacheDirectory=mkosi.pkgcache).
+      - name: Cache mkosi RPMs
+        uses: actions/cache@v4
+        with:
+          path: mkosi.pkgcache
+          key: mkosi-pkg-${{ runner.os }}-${{ hashFiles('mkosi.conf', 'mkosi.conf.d/**', 'mkosi.profiles/comet.conf') }}
+          restore-keys: |
+            mkosi-pkg-${{ runner.os }}-
 
-      # 5. Build image
+      # 4. Configure CI credentials from repo secrets. Unset secrets fall
+      # back to secure defaults: the mecha user ships locked, no PIN (tap-to-unlock).
+      - name: Configure CI credentials
+        env:
+          CI_MECHA_USER_PASSWORD: ${{ secrets.CI_MECHA_USER_PASSWORD }}
+          CI_MECHANIX_LOCKSCREEN_PIN: ${{ secrets.CI_MECHANIX_LOCKSCREEN_PIN }}
+        run: |
+          set -euo pipefail
+          touch mkosi.env
+          chmod 600 mkosi.env
+          if [ -n "${CI_MECHA_USER_PASSWORD}" ]; then
+            printf 'MECHA_USER_PASSWORD=%s\n' "${CI_MECHA_USER_PASSWORD}" >> mkosi.env
+          fi
+          if [ -n "${CI_MECHANIX_LOCKSCREEN_PIN}" ]; then
+            printf 'MECHANIX_LOCKSCREEN_PIN=%s\n' "${CI_MECHANIX_LOCKSCREEN_PIN}" >> mkosi.env
+          fi
+
+      # 5. Compute a single timestamp for this run, used as the image's
+      # own IMAGE_VERSION (stamped into /etc/os-release)
+      - name: Compute build version
+        run: |
+          echo "BUILD_VERSION=$(date -u +%Y%m%d-%H%M)" >> "$GITHUB_ENV"
+          echo "COMMIT_SHA=${GITHUB_SHA:0:7}" >> "$GITHUB_ENV"
+
+      # 6. Build image
       - name: Build image with mkosi
         run: |
           set -euxo pipefail
-          mkosi -f build
+          mkosi --profile=comet --image-version="${BUILD_VERSION}" \
+            --environment=MECHA_COMMIT_SHA="${COMMIT_SHA}" -f build
           test -f "${MKOSI_OUTPUT}"
 
-      # 6. Rename image with timestamp and upload
+      # 7. Rename image and upload
       - name: Move image with timestamp
         run: |
           set -euxo pipefail
 
-          TS=$(date -u +"%Y%m%d-%H%M")
-          FINAL_NAME="mechanix-os-${TS}.raw"
+          FINAL_NAME="mechanix-os-${BUILD_VERSION}.raw"
 
           mkdir -p /opt/mecha
-          mv fedora43.raw /opt/mecha/${FINAL_NAME}
+          mv "${MKOSI_OUTPUT}" /opt/mecha/${FINAL_NAME}
 
           echo "IMAGE_NAME=${FINAL_NAME}" >> $GITHUB_ENV
 

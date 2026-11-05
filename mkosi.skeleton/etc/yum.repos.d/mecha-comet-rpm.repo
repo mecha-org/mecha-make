@@ -1,6 +1,0 @@
-[comet-rpm]
-name=comet-rpm
-baseurl=http://pkg.mecha.so/rpm
-repo_gpgcheck=0
-gpgcheck=0
-enabled=1

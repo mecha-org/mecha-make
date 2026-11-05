@@ -1,0 +1,76 @@
+name: QEMU Image Build
+
+# Builds the x86-64 `qemu` profile
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+   
+    container:
+      image: fedora:44
+      options: --privileged
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          set -euxo pipefail
+          dnf -y update
+          dnf -y install \
+            python3 \
+            pipx \
+            systemd \
+            systemd-repart \
+            git \
+            util-linux \
+            e2fsprogs \
+            dosfstools \
+            squashfs-tools \
+            xz \
+            tar \
+            distribution-gpg-keys \
+            fedora-repos
+
+      - name: Install mkosi
+        run: |
+          set -euxo pipefail
+          pipx install git+https://github.com/systemd/mkosi.git
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      # Configure the mecha user's password from a repo secret. If CI_MECHA_USER_PASSWORD isn't configured, the build
+      # falls back to the secure default: the mecha user ships locked.
+      
+      - name: Configure CI credentials
+        env:
+          CI_MECHA_USER_PASSWORD: ${{ secrets.CI_MECHA_USER_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -n "${CI_MECHA_USER_PASSWORD}" ]; then
+            printf 'MECHA_USER_PASSWORD=%s\n' "${CI_MECHA_USER_PASSWORD}" > mkosi.env
+            chmod 600 mkosi.env
+          fi
+
+      - name: Build qemu profile image
+        run: |
+          set -euxo pipefail
+          mkosi --profile=qemu --environment=MECHA_COMMIT_SHA="${GITHUB_SHA:0:7}" -f build
+          test -f mechanix-os-qemu.raw
+
+      - name: Upload image artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mechanix-os-qemu-raw
+          path: mechanix-os-qemu.raw
+
+      - name: Upload run script artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-qemu
+          path: run-qemu.sh

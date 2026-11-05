@@ -1,0 +1,5 @@
+[org.gnome.desktop.screensaver]
+lock-enabled=false
+
+[sm.puri.phosh.lockscreen]
+require-unlock=false

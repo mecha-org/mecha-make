@@ -1,0 +1,12 @@
+#!/bin/sh
+
+[ "$1" = "pre" ] || exit 0
+
+echo 32e00000.isi | sudo tee /sys/bus/platform/drivers/mxc-isi/unbind
+echo 32e40000.csi | sudo tee /sys/bus/platform/drivers/imx-mipi-csis/unbind
+echo 32fdff00.phy | sudo tee /sys/bus/platform/drivers/fsl-samsung-hdmi-phy/unbind
+echo 38300000.video-codec | sudo tee /sys/bus/platform/drivers/hantro-vpu/unbind
+echo 38310000.video-codec | sudo tee /sys/bus/platform/drivers/hantro-vpu/unbind
+echo 38320000.video-codec | sudo tee /sys/bus/platform/drivers/hantro-vpu/unbind
+
+exit 0

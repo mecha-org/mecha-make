@@ -7,5 +7,5 @@ command = "agreety --cmd /bin/sh"
 user = "greetd"
 
 [initial_session]
-command = "phoc --exec mechanix-launcher"
+command = "/usr/bin/mechanix-session"
 user = "mecha"

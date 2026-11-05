@@ -2,19 +2,82 @@
 set -e
 
 USERNAME=mecha
-PASSWORD="mecha"
 
-# Create user with home directory and bash shell
 useradd -m -s /bin/bash "$USERNAME"
 
-# Set the user password
-echo "$USERNAME:$PASSWORD" | chpasswd
+# From mkosi.env. Unset leaves the account locked, not a known default.
+if [ -n "${MECHA_USER_PASSWORD:-}" ]; then
+    echo "$USERNAME:$MECHA_USER_PASSWORD" | chpasswd
+else
+    passwd -l "$USERNAME"
+fi
 
-# Add the user to the 'wheel' group for sudo privileges
 usermod -aG wheel "$USERNAME"
+
+# From mkosi.env. Unset falls back to tap-to-unlock.
+if [ -n "${MECHANIX_LOCKSCREEN_PIN:-}" ]; then
+    case "$MECHANIX_LOCKSCREEN_PIN" in
+        [0-9][0-9][0-9][0-9]) ;;
+        *)
+            echo "MECHANIX_LOCKSCREEN_PIN must be exactly 4 digits" >&2
+            exit 1
+            ;;
+    esac
+    PIN_FILE=/etc/mechanix/pin.passwd
+    install -d -m 0750 -o root -g "$USERNAME" "$(dirname "$PIN_FILE")"
+    HASH="$(openssl passwd -6 "$MECHANIX_LOCKSCREEN_PIN")"
+    printf '%s:%s\n' "$USERNAME" "$HASH" > "$PIN_FILE"
+    chown root:"$USERNAME" "$PIN_FILE"
+    chmod 0640 "$PIN_FILE"
+fi
 
 glib-compile-schemas /usr/share/glib-2.0/schemas/
 
-# Optional: allow wheel group to use sudo without password
-# Uncomment if you want passwordless sudo
-# echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+ln -snf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+echo "Asia/Kolkata" > /etc/timezone
+
+# Traceability: IMAGE_VERSION/VARIANT_ID always set; BUILD_ID (commit sha) only when CI provides MECHA_COMMIT_SHA.
+VARIANT_ID="${PROFILES:-comet}"
+VARIANT_ID="${VARIANT_ID// /-}"
+{
+    echo "IMAGE_VERSION=\"$IMAGE_VERSION\""
+    if [ -n "${MECHA_COMMIT_SHA:-}" ]; then
+        echo "BUILD_ID=\"$MECHA_COMMIT_SHA\""
+    fi
+    echo "VARIANT_ID=\"$VARIANT_ID\""
+} >> /etc/os-release
+
+# qemu profile: point phoc at the virtio-vga "Virtual-1" output (phosh's packaged default targets a different placeholder connector).
+if [[ " ${PROFILES:-} " == *" qemu "* ]]; then
+    cat > /usr/share/phosh/phoc.ini <<'EOF'
+#[core]
+#xwayland=false
+
+#[output:DSI-1]
+#scale = 2
+
+[output:Virtual-1]
+# Matches real Comet DSI-1 logical size; scale=1 since virtio-vga-gl has no modeline concept.
+mode = 1080x1240
+scale = 1
+
+[output:X11-1]
+mode = 360x720
+#rotate = 90
+#scale = 1
+
+[output:WL-1]
+mode = 360x720
+#rotate = 90
+#scale = 1
+
+[output:HEADLESS-1]
+mode = 720x1440
+#rotate = 90
+scale = 2
+EOF
+
+    # virtio-gpu-gl hardware cursor renders Y-flipped under wlroots; force software cursor.
+    mkdir -p /etc/environment.d
+    echo 'WLR_NO_HARDWARE_CURSORS=1' > /etc/environment.d/50-qemu-wlr-no-hw-cursor.conf
+fi

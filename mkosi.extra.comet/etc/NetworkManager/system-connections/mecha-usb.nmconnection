@@ -1,0 +1,14 @@
+[connection]
+id=mecha-usb
+uuid=b454bd7e-e8fd-43ac-810c-408248a667d2
+type=ethernet
+interface-name=usb0
+zone=trusted
+autoconnect=true
+
+[ipv4]
+method=manual
+address1=172.16.42.1/24
+
+[ipv6]
+method=ignore
