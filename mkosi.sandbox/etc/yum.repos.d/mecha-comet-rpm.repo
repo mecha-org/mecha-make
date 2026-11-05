@@ -1,8 +1,0 @@
-[comet-rpm]
-name=comet-rpm
-baseurl=http://pkgarchive.mecha.so/rpm
-repo_gpgcheck=0
-gpgcheck=0
-enabled=1
-# Pin this repo below Fedora's own repos (priority=99, the dnf5 default) so  custom-built kernel/firmware packages are always preferred over the stock ones.
-priority=1
