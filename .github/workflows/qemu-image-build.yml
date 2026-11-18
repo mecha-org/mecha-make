@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
    
     container:
-      image: fedora:44
+      image: fedora:45
       options: --privileged
 
     steps:
