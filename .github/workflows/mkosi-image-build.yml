@@ -9,7 +9,13 @@ on:
 
 jobs:
   build:
+    name: build (fedora ${{ matrix.release }})
     runs-on: ubuntu-24.04-arm
+
+    strategy:
+      fail-fast: false
+      matrix:
+        release: [44, 45]
 
     container:
       image: fedora:45
@@ -50,18 +56,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /var/cache/dnf
-          key: dnf-${{ runner.os }}-${{ hashFiles('mkosi.conf', 'mkosi.conf.d/**', 'mkosi.profiles/comet.conf') }}
+          key: dnf-${{ runner.os }}-f${{ matrix.release }}-${{ hashFiles('mkosi.conf', 'mkosi.conf.d/**', 'mkosi.profiles/comet.conf') }}
           restore-keys: |
-            dnf-${{ runner.os }}-
+            dnf-${{ runner.os }}-f${{ matrix.release }}-
 
       # Cache the RPMs mkosi's dnf downloads (PackageCacheDirectory=mkosi.pkgcache).
       - name: Cache mkosi RPMs
         uses: actions/cache@v4
         with:
           path: mkosi.pkgcache
-          key: mkosi-pkg-${{ runner.os }}-${{ hashFiles('mkosi.conf', 'mkosi.conf.d/**', 'mkosi.profiles/comet.conf') }}
+          key: mkosi-pkg-${{ runner.os }}-f${{ matrix.release }}-${{ hashFiles('mkosi.conf', 'mkosi.conf.d/**', 'mkosi.profiles/comet.conf') }}
           restore-keys: |
-            mkosi-pkg-${{ runner.os }}-
+            mkosi-pkg-${{ runner.os }}-f${{ matrix.release }}-
 
       # 4. Configure CI credentials from repo secrets. Unset secrets fall
       # back to secure defaults: the mecha user ships locked, no PIN (tap-to-unlock).
@@ -91,7 +97,7 @@ jobs:
       - name: Build image with mkosi
         run: |
           set -euxo pipefail
-          mkosi --profile=comet --image-version="${BUILD_VERSION}" \
+          mkosi --profile=comet --release=${{ matrix.release }} --image-version="${BUILD_VERSION}" \
             --environment=MECHA_COMMIT_SHA="${COMMIT_SHA}" -f build
           test -f "${MKOSI_OUTPUT}"
 
@@ -100,7 +106,7 @@ jobs:
         run: |
           set -euxo pipefail
 
-          FINAL_NAME="mechanix-os-${BUILD_VERSION}.raw"
+          FINAL_NAME="mechanix-os-f${{ matrix.release }}-${BUILD_VERSION}.raw"
 
           mkdir -p /opt/mecha
           mv "${MKOSI_OUTPUT}" /opt/mecha/${FINAL_NAME}
