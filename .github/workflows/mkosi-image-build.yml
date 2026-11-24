@@ -1,4 +1,6 @@
-name: Mechanix OS Image Build
+name: Fedora 45 mkosi Image Build
+
+run-name: Fedora 45 mkosi Image Build (${{ github.ref_name }})
 
 on:
   push:
@@ -12,7 +14,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
 
     container:
-      image: fedora:44
+      image: fedora:45
       options: --privileged
 
     env:
