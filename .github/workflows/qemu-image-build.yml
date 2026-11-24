@@ -7,13 +7,7 @@ on:
 
 jobs:
   build:
-    name: build (fedora ${{ matrix.release }})
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        release: [44, 45]
    
     container:
       image: fedora:45
@@ -64,19 +58,19 @@ jobs:
       - name: Build qemu profile image
         run: |
           set -euxo pipefail
-          mkosi --profile=qemu --release=${{ matrix.release }} --environment=MECHA_COMMIT_SHA="${GITHUB_SHA:0:7}" -f build
+          mkosi --profile=qemu --environment=MECHA_COMMIT_SHA="${GITHUB_SHA:0:7}" -f build
           test -f mechanix-os-qemu.raw
 
       - name: Upload image artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: mechanix-os-qemu-f${{ matrix.release }}-raw
+          name: mechanix-os-qemu-raw
           path: mechanix-os-qemu.raw
 
       - name: Upload run script artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: run-qemu-f${{ matrix.release }}
+          name: run-qemu
           path: run-qemu.sh
