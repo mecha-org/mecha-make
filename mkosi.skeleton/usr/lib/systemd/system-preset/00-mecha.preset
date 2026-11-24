@@ -1,3 +1,4 @@
 enable greetd.service
 enable mechanix-system-service.service
+enable polkit-agent-helper.socket
 enable systemd-timesyncd.service
