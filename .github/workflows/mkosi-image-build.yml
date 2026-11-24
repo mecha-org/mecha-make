@@ -1,4 +1,6 @@
-name: Mechanix OS Image Build
+name: Fedora 45 mkosi Image Build
+
+run-name: Fedora 45 mkosi Image Build (${{ github.ref_name }})
 
 on:
   push:
